@@ -1,0 +1,91 @@
+body {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  margin: 0;
+  background: #f4f6fb;
+  color: #1f2937;
+}
+
+.app-header,
+.app-footer {
+  background: #1e3a8a;
+  color: #fff;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.card {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.actions {
+  justify-content: flex-start;
+}
+
+label {
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  flex: 1;
+  font-size: 1rem;
+}
+
+textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  background: #1e40af;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #1d4ed8;
+}
+
+.content {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 1rem;
+  min-height: 60px;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+.verse-block {
+  margin-top: 0.5rem;
+  padding-left: 0.75rem;
+  border-left: 3px solid #e5e7eb;
+  color: #374151;
+}

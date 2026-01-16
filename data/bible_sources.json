@@ -1,0 +1,20 @@
+{
+  "default_version": "YLT",
+  "sources": {
+    "YLT": {
+      "title": "Young's Literal Translation",
+      "path": "C:\\Users\\DJMcC\\OneDrive\\Desktop\\bible_in_year\\englyt",
+      "format": "html"
+    },
+    "ASV": {
+      "title": "American Standard Version",
+      "path": "C:\\Users\\DJMcC\\OneDrive\\Desktop\\bible_in_year\\asv",
+      "format": "html"
+    },
+    "DBY": {
+      "title": "Darby Bible",
+      "path": "C:\\Users\\DJMcC\\OneDrive\\Desktop\\bible_in_year\\engDBY",
+      "format": "html"
+    }
+  }
+}

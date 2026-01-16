@@ -1,0 +1,53 @@
+{
+  "name": "Classic Bible in a Year",
+  "description": "Traditional chronological reading plan covering the entire Bible",
+  "total_days": 365,
+  "start_date": "2024-01-01",
+  "readings": {
+    "2024-01-01": {
+      "passages": [
+        "Genesis 1-3",
+        "Psalm 1",
+        "Matthew 1"
+      ],
+      "theme": "Creation and Beginning",
+      "total_verses": 89
+    },
+    "2024-01-02": {
+      "passages": [
+        "Genesis 4-6",
+        "Psalm 2",
+        "Matthew 2"
+      ],
+      "theme": "Early Humanity and Promise",
+      "total_verses": 76
+    },
+    "2024-01-03": {
+      "passages": [
+        "Genesis 7-9",
+        "Psalm 3",
+        "Matthew 3"
+      ],
+      "theme": "The Flood and Covenant",
+      "total_verses": 82
+    },
+    "2024-01-04": {
+      "passages": [
+        "Genesis 10-12",
+        "Psalm 4",
+        "Matthew 4"
+      ],
+      "theme": "Nations and Abraham's Call",
+      "total_verses": 78
+    },
+    "2024-01-05": {
+      "passages": [
+        "Genesis 13-15",
+        "Psalm 5",
+        "Matthew 5:1-20"
+      ],
+      "theme": "God's Promises and Beatitudes",
+      "total_verses": 85
+    }
+  }
+}

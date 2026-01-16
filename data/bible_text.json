@@ -1,0 +1,24 @@
+{
+  "version": "KJV",
+  "books": {
+    "Genesis": {
+      "chapters": {
+        "1": {
+          "verses": {
+            "1": "In the beginning God created the heaven and the earth.",
+            "2": "And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters."
+          }
+        }
+      }
+    },
+    "Psalms": {
+      "chapters": {
+        "1": {
+          "verses": {
+            "1": "Blessed is the man that walketh not in the counsel of the ungodly, nor standeth in the way of sinners, nor sitteth in the seat of the scornful."
+          }
+        }
+      }
+    }
+  }
+}

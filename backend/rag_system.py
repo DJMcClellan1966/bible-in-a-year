@@ -1,106 +1,95 @@
 """
-Retrieval Augmented Generation system for AI helpers
-Provides contextually relevant information from saints' writings
+Lightweight retrieval system for saint writings.
+Uses simple keyword overlap by default to avoid heavy dependencies.
 """
+
+from __future__ import annotations
 
 import json
 import math
 import re
-from typing import List, Dict, Any
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 
 class RAGSystem:
-    """RAG system for retrieving relevant context from saints' writings"""
-
-    def __init__(self):
-        self.data_dir = Path(__file__).parent.parent / "data"
-        self.models_dir = Path(__file__).parent.parent / "models"
-        self.augustine_dir = self.data_dir / "augustine"
-        self.index_dir = self.models_dir / "simple_index"
+    def __init__(self) -> None:
+        root = Path(__file__).parent.parent
+        self.data_dir = root / "data"
+        self.models_dir = root / "models" / "simple_index"
+        self.models_dir.mkdir(parents=True, exist_ok=True)
 
         self.documents_by_helper: Dict[str, List[Dict[str, Any]]] = {
             "augustine": [],
             "aquinas": [],
-            "combined": []
+            "combined": [],
         }
-        self.load_or_create_indices()
 
-    def load_or_create_indices(self):
-        """Load existing indices or create new ones"""
-        self.index_dir.mkdir(parents=True, exist_ok=True)
-        for helper in ["augustine", "aquinas", "combined"]:
-            index_path = self.index_dir / f"{helper}_index.json"
-            if index_path.exists():
-                try:
-                    with open(index_path, "r", encoding="utf-8") as f:
-                        self.documents_by_helper[helper] = json.load(f)
-                    print(f"Loaded index for {helper}")
-                except Exception as e:
-                    print(f"Error loading index for {helper}: {e}")
-                    self.documents_by_helper[helper] = []
+        self._load_indices()
 
-    def process_augustin_documents(self):
-        """Process and index Augustine's writings"""
-        if not self.augustine_dir.exists():
-            print("Augustine directory not found, creating...")
-            self.augustine_dir.mkdir(parents=True, exist_ok=True)
+    def initialize_default_data(self, force: bool = False) -> None:
+        """Initialize indices only if they don't already have content."""
+        if not force and self._has_cached_data():
+            return  # Skip - already indexed
+
+        self.index_helper("augustine", self.data_dir / "augustine", force=force)
+        self.index_helper("aquinas", self.data_dir / "aquinas", force=force)
+        self._update_combined()
+
+    def _has_cached_data(self) -> bool:
+        """Check if we already have indexed documents."""
+        for helper in ("augustine", "aquinas"):
+            if self.documents_by_helper.get(helper):
+                return True
+        return False
+
+    def index_helper(self, helper: str, directory: Path, force: bool = False) -> None:
+        # Skip if already have docs and not forcing
+        if not force and self.documents_by_helper.get(helper):
             return
 
-        documents = []
-        chunk_size = 1000
-        chunk_overlap = 200
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            return
 
-        # Process text files
-        for file_path in self.augustine_dir.glob("*.txt"):
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    if content.strip():
-                        chunks = self._chunk_text(content, chunk_size, chunk_overlap)
-                        for i, chunk in enumerate(chunks):
-                            documents.append({
-                                "id": f"{file_path.stem}_chunk_{i}",
-                                "text": chunk,
-                                "source": str(file_path),
-                                "author": "augustine",
-                                "title": file_path.stem
-                            })
-            except Exception as e:
-                print(f"Error processing {file_path}: {e}")
+        documents: List[Dict[str, Any]] = []
+        for file_path in directory.rglob("*"):
+            if not file_path.is_file():
+                continue
 
-        # Process other formats if available (PDF, DOCX, etc.)
-        # Add more loaders as needed
+            # Skip large PDFs on startup (process async later)
+            if file_path.suffix.lower() == ".pdf" and file_path.stat().st_size > 5_000_000:
+                continue
+
+            text = self._load_text(file_path)
+            if not text:
+                continue
+
+            chunks = self._chunk_text(text, chunk_size=1000, chunk_overlap=200)
+            for i, chunk in enumerate(chunks):
+                documents.append(
+                    {
+                        "id": f"{file_path.stem}_{i}",
+                        "text": chunk,
+                        "source": str(file_path),
+                        "author": helper,
+                        "title": file_path.stem,
+                    }
+                )
 
         if documents:
-            self._index_documents(documents, "augustine")
-            print(f"Processed {len(documents)} chunks from Augustine's writings")
+            self.documents_by_helper[helper] = documents
+            self._save_index(helper)
 
-    def _index_documents(self, documents: List[Dict], helper: str):
-        """Index documents with a lightweight keyword index"""
-        if helper not in self.documents_by_helper:
-            self.documents_by_helper[helper] = []
-
-        self.documents_by_helper[helper].extend(documents)
-        self._save_index(helper)
-
-        if helper in ["augustine", "aquinas"]:
-            self._update_combined_collection()
-
-        print(f"Indexed {len(documents)} documents for {helper}")
-
-    def get_relevant_context(self, query: str, helper: str = "augustine", top_k: int = 5) -> List[Dict]:
-        """Retrieve relevant context for a query"""
+    def get_relevant_context(self, query: str, helper: str, top_k: int = 5) -> List[Dict[str, Any]]:
         if helper not in self.documents_by_helper:
             return []
-        return self._search_keyword(query, helper, top_k)
 
-    def _search_keyword(self, query: str, helper: str, top_k: int) -> List[Dict]:
-        """Search using simple keyword overlap"""
         query_tokens = self._tokenize(query)
         if not query_tokens:
             return []
 
-        scored_docs = []
+        scored_docs: List[Dict[str, Any]] = []
         for doc in self.documents_by_helper.get(helper, []):
             score = self._score_tokens(query_tokens, self._tokenize(doc.get("text", "")))
             if score > 0:
@@ -111,77 +100,82 @@ class RAGSystem:
         scored_docs.sort(key=lambda d: d["score"], reverse=True)
         return scored_docs[:top_k]
 
-    def add_aquinas_documents(self, documents: List[Dict]):
-        """Add Aquinas documents to the system"""
-        self._index_documents(documents, "aquinas")
-
-        # Update combined collection
-        self._update_combined_collection()
-
-    def _update_combined_collection(self):
-        """Update the combined collection with both Augustine and Aquinas"""
-        combined_docs = []
-        for helper in ["augustine", "aquinas"]:
-            combined_docs.extend(self.documents_by_helper.get(helper, []))
-
-        self.documents_by_helper["combined"] = combined_docs
+    def _update_combined(self) -> None:
+        combined: List[Dict[str, Any]] = []
+        for helper in ("augustine", "aquinas"):
+            combined.extend(self.documents_by_helper.get(helper, []))
+        self.documents_by_helper["combined"] = combined
         self._save_index("combined")
 
-    def get_helper_stats(self) -> Dict[str, Any]:
-        """Get statistics about indexed documents"""
-        stats = {}
-        for helper, documents in self.documents_by_helper.items():
-            stats[helper] = {"document_count": len(documents)}
+    def _load_indices(self) -> None:
+        for helper in self.documents_by_helper.keys():
+            index_path = self.models_dir / f"{helper}.json"
+            if index_path.exists():
+                try:
+                    with open(index_path, "r", encoding="utf-8") as f:
+                        self.documents_by_helper[helper] = json.load(f)
+                except Exception:
+                    self.documents_by_helper[helper] = []
 
-        return stats
-
-    def initialize_default_data(self):
-        """Initialize with any available default data"""
-        # Process Augustine documents if they exist
-        if self.augustine_dir.exists():
-            self.process_augustin_documents()
-
-        # TODO: Add Aquinas data when available
-        # TODO: Add Bible text data for reference
-
-    def _save_index(self, helper: str):
-        """Persist a helper index to disk"""
-        index_path = self.index_dir / f"{helper}_index.json"
-        try:
-            with open(index_path, "w", encoding="utf-8") as f:
-                json.dump(self.documents_by_helper.get(helper, []), f, indent=2, ensure_ascii=False)
-        except Exception as e:
-            print(f"Error saving index for {helper}: {e}")
+    def _save_index(self, helper: str) -> None:
+        index_path = self.models_dir / f"{helper}.json"
+        with open(index_path, "w", encoding="utf-8") as f:
+            json.dump(self.documents_by_helper.get(helper, []), f, indent=2, ensure_ascii=False)
 
     def _chunk_text(self, text: str, chunk_size: int, chunk_overlap: int) -> List[str]:
-        """Simple text chunking to avoid heavy dependencies"""
-        chunks = []
+        chunks: List[str] = []
         start = 0
         text_length = len(text)
-
         while start < text_length:
             end = min(start + chunk_size, text_length)
             chunk = text[start:end].strip()
             if chunk:
                 chunks.append(chunk)
             start = max(end - chunk_overlap, end)
-
         return chunks
 
     def _tokenize(self, text: str) -> List[str]:
-        """Tokenize text into lowercase words"""
         return re.findall(r"[a-zA-Z']+", text.lower())
 
     def _score_tokens(self, query_tokens: List[str], doc_tokens: List[str]) -> float:
-        """Compute a simple overlap score"""
         if not doc_tokens:
             return 0.0
-
         query_set = set(query_tokens)
         doc_set = set(doc_tokens)
         overlap = len(query_set & doc_set)
-
         if overlap == 0:
             return 0.0
-
         return overlap / math.sqrt(len(doc_set))
+
+    def _load_text(self, file_path: Path) -> Optional[str]:
+        suffix = file_path.suffix.lower()
+        try:
+            if suffix in {".txt", ".md"}:
+                return file_path.read_text(encoding="utf-8", errors="ignore")
+            if suffix in {".html", ".htm"}:
+                try:
+                    from bs4 import BeautifulSoup  # optional
+                except Exception:
+                    return None
+                soup = BeautifulSoup(file_path.read_text(encoding="utf-8", errors="ignore"), "html.parser")
+                return soup.get_text(separator="\n")
+            if suffix == ".pdf":
+                try:
+                    import fitz  # PyMuPDF, optional
+                except Exception:
+                    return None
+                doc = fitz.open(str(file_path))
+                text = "\n".join(page.get_text() for page in doc)
+                doc.close()
+                return text
+            if suffix == ".docx":
+                try:
+                    import docx  # python-docx, optional
+                except Exception:
+                    return None
+                document = docx.Document(str(file_path))
+                return "\n".join(p.text for p in document.paragraphs)
+        except Exception:
+            return None
+
+        return None

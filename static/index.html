@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bible in a Year</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Bible in a Year</h1>
+      <p>AI spiritual companions: Augustine & Aquinas</p>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>Daily Reading</h2>
+        <div class="row">
+          <label for="reading-date">Date</label>
+          <input type="date" id="reading-date" />
+          <label for="bible-version">Version</label>
+          <select id="bible-version"></select>
+          <button id="load-reading">Load</button>
+        </div>
+        <div id="reading-content" class="content"></div>
+        <div class="row actions">
+          <button data-helper="augustine" class="btn">Ask Augustine</button>
+          <button data-helper="aquinas" class="btn">Ask Aquinas</button>
+          <button data-helper="combined" class="btn">Combined Wisdom</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>AI Commentary</h2>
+        <pre id="commentary" class="content"></pre>
+      </section>
+
+      <section class="card">
+        <h2>Ask a Question</h2>
+        <div class="row">
+          <select id="question-helper">
+            <option value="augustine">Augustine</option>
+            <option value="aquinas">Aquinas</option>
+            <option value="combined">Combined</option>
+          </select>
+          <input type="text" id="question-text" placeholder="Ask about today's reading..." />
+          <button id="ask-question">Ask</button>
+        </div>
+        <pre id="answer" class="content"></pre>
+      </section>
+
+      <section class="card">
+        <h2>Daily Diary</h2>
+        <label>Personal Notes</label>
+        <textarea id="personal-notes" rows="4"></textarea>
+        <label>Margin Notes (one per line)</label>
+        <textarea id="margin-notes" rows="3"></textarea>
+        <label>AI Insights</label>
+        <textarea id="ai-insights" rows="3"></textarea>
+        <div class="row actions">
+          <button id="save-diary" class="btn">Save Entry</button>
+          <span id="save-status"></span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Progress</h2>
+        <div id="progress" class="content"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Sources: CCEL, Gutenberg, Internet Archive</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

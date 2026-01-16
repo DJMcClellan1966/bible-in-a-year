@@ -1,268 +1,112 @@
-# Bible in a Year with AI Spiritual Companions
+# Bible in a Year (Windows Universal App)
 
-A modern web application that combines traditional Bible reading plans with AI-powered spiritual guidance from Saints Augustine and Aquinas. Experience Scripture in a new way with personalized commentary, reflective journaling, and intelligent conversation about theology and faith.
+Bible in a Year is a Windows‑friendly app that combines a classic daily reading plan with AI spiritual companions based on Saints Augustine and Aquinas. It supports offline‑friendly journaling, margin notes, and Ollama‑powered commentary.
 
-## 🌟 Features
+## Features
+- Daily reading structure with a chronological-style plan (generated locally)
+- AI commentary, Q&A, and personalized insights
+- Diary with margin notes saved for rereading
+- Progress tracking and themed devotionals
+- Offline‑friendly local storage
+- Credits for CCEL, Gutenberg, and Internet Archive
 
-### Core Functionality
-- **Daily Bible Readings**: Traditional "Bible in a Year" reading plans with modern enhancements
-- **AI Spiritual Companions**: Interactive conversations with Saints Augustine and Aquinas
-- **Personal Diary**: Reflective journaling with margin notes for deeper insights
-- **Progress Tracking**: Visual progress indicators and milestone celebrations
-- **Offline Support**: Full functionality without internet connection
+## Reading Plan
+The app uses `data/reading_plans.json` if present. If the file is missing or incomplete, the backend will generate a complete 365‑day chronological-style plan on first run.
 
-### AI Features
-- **Personalized Commentary**: Context-aware biblical interpretation
-- **Theological Q&A**: Ask questions about Scripture, doctrine, and spiritual life
-- **Reflective Guidance**: AI-powered insights for personal growth
-- **Multi-Saint Wisdom**: Choose between Augustine, Aquinas, or combined perspectives
+## Requirements
+- Python 3.11
+- Ollama (optional, for AI commentary)
 
-### User Experience
-- **Responsive Design**: Works beautifully on desktop, tablet, and mobile
-- **Accessibility**: Screen reader friendly with keyboard navigation
-- **Dark/Light Themes**: Multiple theme options for comfortable reading
-- **Customizable Fonts**: Adjustable text sizes for different preferences
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.11 with pip (recommended on Windows)
-- Node.js 16+ with npm
-- Ollama (for local AI models)
-- Git
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd bible-in-a-year
-   ```
-
-2. **Set up the backend**
-   ```bash
-   # Install Python dependencies
-   pip install -r requirements.txt
-
-   # The backend will create a SQLite database automatically
-   ```
-   For full RAG and document ingestion on Python 3.11:
-   ```bash
-   pip install -r requirements-full.txt
-   ```
-
-3. **Set up the frontend**
-   ```bash
-   cd frontend
-   npm install
-   npm run build
-   cd ..
-   ```
-
-4. **Set up Ollama (for AI features)**
-   ```bash
-   # Install Ollama from https://ollama.ai
-   ollama pull llama2:7b  # Base model
-   ollama pull llama2:13b # For combined wisdom (optional)
-   ```
-
-5. **Add Saint Augustine's writings**
-   ```
-   # Place your downloaded Augustine texts in:
-   data/augustine/
-   # Supported formats: .txt, .pdf, .docx
-   ```
-
-### Running the Application
-
-1. **Start the backend server**
-   ```bash
-   python -m backend.main
-   # Or: uvicorn backend.main:app --reload
-   ```
-   The API will be available at `http://localhost:8000`
-
-2. **Start the frontend** (in a new terminal)
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-   The app will be available at `http://localhost:5173`
-
-3. **Open your browser** and navigate to `http://localhost:5173`
-
-## 📖 How to Use
-
-### Daily Reading
-1. Navigate to the "Daily Reading" tab
-2. Use the date picker to select any day
-3. Read the assigned Bible passages
-4. Click "Ask Augustine" or "Ask Aquinas" for commentary
-5. Add personal reflections in the Diary tab
-
-### AI Conversations
-1. Go to the "AI Helpers" page
-2. Select your preferred spiritual companion
-3. Ask questions about Scripture, theology, or spiritual guidance
-4. Receive personalized, contextually-aware responses
-
-### Personal Diary
-1. Each day's reading has a dedicated diary entry
-2. Add personal reflections and thoughts
-3. Create margin notes for specific verses or passages
-4. AI insights can be stored alongside your reflections
-
-### Progress Tracking
-- View completion statistics
-- See milestone achievements
-- Track reading streaks and consistency
-
-## 🏗️ Architecture
-
-### Backend (Python/FastAPI)
-- **Database**: SQLite with SQLAlchemy ORM
-- **AI Integration**: Ollama client with local model support
-- **RAG System**: Lightweight keyword index by default (optional full RAG in `requirements-full.txt`)
-- **Bible Reader**: Modular reading plan management
-- **API**: RESTful endpoints with automatic documentation
-
-### Frontend (React/TypeScript)
-- **Framework**: React 18 with TypeScript
-- **Routing**: React Router for navigation
-- **Styling**: Tailwind CSS with custom components
-- **State Management**: React hooks and context
-- **API Client**: Axios with offline queue support
-
-### Data Flow
-```
-User Request → Frontend → API → RAG System → Ollama → AI Response → Frontend Display
+## Install
+```bash
+pip install -r requirements.txt
 ```
 
-## 📚 Data Sources & Credits
-
-This application uses materials from:
-
-- **Christian Classics Ethereal Library (CCEL)**: Public domain theological texts
-- **Project Gutenberg**: Classic Christian literature
-- **Internet Archive**: Historical religious documents
-- **Bible Texts**: Public domain KJV and other translations
-
-### Attribution Requirements
-When using downloaded texts, please attribute to the original sources as required by their licenses.
-
-## 🔧 Configuration
-
-### Environment Variables
-Create a `.env` file in the backend directory:
-
-```env
-# Database
-DATABASE_URL=sqlite:///./bible_app.db
-
-# Ollama Configuration
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama2:7b
-
-# Optional: Remote Ollama instance
-OLLAMA_REMOTE_URL=https://your-remote-ollama-instance.com
-
-# Development
-DEBUG=True
+For full ingestion + RAG on Python 3.11:
+```bash
+pip install -r requirements-full.txt
 ```
 
-### Reading Plans
-Customize reading plans by editing `data/reading_plans.json`:
+## Run (Windows Desktop)
+```bash
+python desktop_app.py
+```
 
-```json
+## Run (API + Web)
+```bash
+python -m backend.main
+```
+Open `http://127.0.0.1:8000/static/index.html`
+
+## Data Sources
+Place your Saint Augustine files in:
+```
+data/augustine/
+```
+
+Place your Saint Thomas Aquinas files in:
+```
+data/aquinas/
+```
+
+## Bible Text
+To display full passages, place a JSON file at:
+```
+data/bible_text.json
+```
+Format example:
+```
 {
-  "name": "Custom Reading Plan",
-  "readings": {
-    "2024-01-01": {
-      "passages": ["Genesis 1-3", "Psalm 1"],
-      "theme": "Creation"
+  "version": "KJV",
+  "books": {
+    "Genesis": {
+      "chapters": {
+        "1": {
+          "verses": {
+            "1": "In the beginning God created the heaven and the earth."
+          }
+        }
+      }
     }
   }
 }
 ```
 
-## 🤝 Contributing
-
-We welcome contributions! Areas for improvement:
-
-- **Additional Saints**: Add more theological figures (Thomas Merton, C.S. Lewis, etc.)
-- **Bible Translations**: Support for multiple translations
-- **Reading Plans**: Alternative reading schedules
-- **Languages**: Internationalization support
-- **Mobile App**: React Native companion app
-
-### Development Setup
-```bash
-# Fork and clone
-git clone your-fork-url
-cd bible-in-a-year
-
-# Set up development environment
-pip install -r requirements.txt
-cd frontend && npm install
-
-# Run tests
-pytest backend/tests/
-cd frontend && npm test
-
-# Submit pull request
+## Ollama
+Set these env vars if needed:
+```
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama2:7b
+OLLAMA_REMOTE_URL=https://your-remote-ollama-instance.com
 ```
 
-## 📄 License
+The backend will try the local Ollama first and fall back to `OLLAMA_REMOTE_URL` if local Ollama is not available.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-### Content Licensing
-- **Application Code**: MIT License
-- **AI Training Data**: Subject to original source licenses
-- **Bible Texts**: Public domain (KJV) or licensed from providers
-- **Theological Texts**: Various open licenses (CCEL, Gutenberg, etc.)
-
-## 🙏 Acknowledgments
-
-- **Saints Augustine and Aquinas**: For their timeless wisdom
-- **Open Source Community**: For the tools that made this possible
-- **Beta Users**: For feedback and encouragement
-- **Christian Tradition**: For 2000 years of spiritual guidance
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Ollama not responding**
-```bash
-# Check if Ollama is running
-ollama list
-
-# Restart Ollama service
-ollama serve
+## Bible Versions (HTML folders)
+To use your local Bible folders (YLT, ASV, DBY), edit:
 ```
-
-**Database errors**
-```bash
-# Reset database
-rm bible_app.db
-python -c "from backend.database import init_db; init_db()"
+data/bible_sources.json
 ```
-
-**Frontend build issues**
-```bash
-cd frontend
-rm -rf node_modules package-lock.json
-npm install
-npm run build
+Example:
 ```
-
-### Support
-- **Issues**: GitHub Issues
-- **Discussions**: GitHub Discussions
-- **Email**: [your-email@example.com]
-
----
-
-*"The Bible is like a letter God has sent to us; prayer is like our answer."*
-— Saint Augustine
+{
+  "default_version": "YLT",
+  "sources": {
+    "YLT": {
+      "title": "Young's Literal Translation",
+      "path": "C:\\Users\\DJMcC\\OneDrive\\Desktop\\bible_in_year\\englyt",
+      "format": "html"
+    },
+    "ASV": {
+      "title": "American Standard Version",
+      "path": "C:\\Users\\DJMcC\\OneDrive\\Desktop\\bible_in_year\\asv",
+      "format": "html"
+    },
+    "DBY": {
+      "title": "Darby Bible",
+      "path": "C:\\Users\\DJMcC\\OneDrive\\Desktop\\bible_in_year\\engDBY",
+      "format": "html"
+    }
+  }
+}
+```
