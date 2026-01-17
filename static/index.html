@@ -16,8 +16,12 @@
       <section class="card">
         <h2>Daily Reading</h2>
         <div class="row">
+          <button id="prev-day" class="nav-btn" title="Previous day (←)">‹</button>
           <label for="reading-date">Date</label>
           <input type="date" id="reading-date" />
+          <button id="next-day" class="nav-btn" title="Next day (→)">›</button>
+          <label for="reading-plan">Plan</label>
+          <select id="reading-plan"></select>
           <label for="bible-version">Version</label>
           <select id="bible-version"></select>
           <button id="load-reading">Load</button>
@@ -59,12 +63,16 @@
         <textarea id="ai-insights" rows="3"></textarea>
         <div class="row actions">
           <button id="save-diary" class="btn">Save Entry</button>
+          <button id="export-diary" class="btn" title="Export all diary entries">Export</button>
           <span id="save-status"></span>
         </div>
       </section>
 
       <section class="card">
-        <h2>Progress</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2>Progress</h2>
+          <button id="toggle-theme" class="btn" title="Toggle dark mode">🌙</button>
+        </div>
         <div id="progress" class="content"></div>
       </section>
     </main>

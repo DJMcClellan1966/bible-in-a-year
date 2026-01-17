@@ -2,7 +2,8 @@
 Bible in a Year backend API.
 """
 
-from datetime import date, datetime
+from contextlib import asynccontextmanager
+from datetime import date, datetime, timedelta
 import json
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -38,9 +39,18 @@ class DiaryEntryCreate(BaseModel):
     ai_insights: Optional[str] = None
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    init_db()
+    yield
+    # Shutdown (if needed)
+
+
 app = FastAPI(
     title="Bible in a Year",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -83,11 +93,6 @@ def get_ollama_client() -> OllamaClient:
     return _ollama_client
 
 
-@app.on_event("startup")
-async def startup_event():
-    init_db()
-
-
 @app.get("/")
 def root():
     return {
@@ -102,15 +107,60 @@ def health():
 
 
 @app.get("/api/readings/{reading_date}")
-def get_daily_reading(reading_date: date, version: Optional[str] = None):
+def get_daily_reading(reading_date: date, version: Optional[str] = None, plan_type: str = "classic"):
     reader = get_bible_reader()
-    reading = reader.get_reading_for_date(reading_date)
+    reading = reader.get_reading_for_date(reading_date, plan_type=plan_type)
     if not reading:
         raise HTTPException(status_code=404, detail="Reading not found.")
     passages_text = {}
     for passage in reading.get("passages", []):
         passages_text[passage] = reader.get_passage_text(passage, version=version)
-    return {"date": reading_date, "passage_text": passages_text, **reading}
+    return {"date": reading_date, "passage_text": passages_text, "plan_type": plan_type, **reading}
+
+
+@app.get("/api/reading-plans")
+def get_reading_plans():
+    """Get list of available reading plans."""
+    return {
+        "plans": [
+            {
+                "id": "classic",
+                "name": "Classic Bible in a Year",
+                "description": "Traditional plan: Old Testament, Psalms/Proverbs, and New Testament readings daily",
+            },
+            {
+                "id": "chronological_cross_ref",
+                "name": "Chronological Cross-Reference",
+                "description": "Read Bible in chronological order with cross-referenced passages",
+            },
+            {
+                "id": "fivexfive_new_testament",
+                "name": "5x5x5 New Testament",
+                "description": "Read through the New Testament 5 days a week (approx. 5 minutes per day)",
+            },
+            {
+                "id": "mcheyne",
+                "name": "Robert Murray M'Cheyne",
+                "description": "Classic 4-reading plan: OT History, OT Prophets/Poetry, New Testament, and Psalms",
+            },
+            {
+                "id": "52_week_genre",
+                "name": "52 Week Bible Reading Plan (Daily Genre)",
+                "description": "Organized by genre: Law, History, Poetry, Prophets, Gospels, Epistles",
+            },
+            {
+                "id": "augustine_classic",
+                "name": "Augustine's Commentary Plan",
+                "description": "Chronological Bible reading with Augustine's interpretive commentary illuminating deeper meanings",
+            },
+            {
+                "id": "aquinas_classic",
+                "name": "Aquinas's Commentary Plan",
+                "description": "Chronological Bible reading with Aquinas's systematic theological commentary on deeper meanings",
+            },
+        ],
+        "default": "classic",
+    }
 
 
 @app.get("/api/passage")
@@ -209,10 +259,79 @@ def get_diary(entry_date: date):
 def get_progress():
     with get_db() as db:
         completed = db.query(DiaryEntry).count()
+        # Get reading streak (consecutive days with diary entries)
+        entries = db.query(DiaryEntry.entry_date).order_by(DiaryEntry.entry_date.desc()).all()
+        streak = 0
+        if entries:
+            today = date.today()
+            expected_date = today
+            for entry_date, in entries:
+                if entry_date == expected_date:
+                    streak += 1
+                    expected_date = entry_date - timedelta(days=1)
+                elif entry_date < expected_date:
+                    break
+        
     return {
         "completed_readings": completed,
         "total_readings": 365,
         "completion_percentage": round((completed / 365) * 100, 2),
+        "reading_streak": streak,
+    }
+
+
+@app.get("/api/diary/export")
+def export_diary():
+    """Export all diary entries as JSON."""
+    from fastapi.responses import Response
+    
+    with get_db() as db:
+        entries = db.query(DiaryEntry).order_by(DiaryEntry.entry_date).all()
+        export_data = []
+        for entry in entries:
+            export_data.append({
+                "entry_date": entry.entry_date.isoformat(),
+                "reading_passage": entry.reading_passage,
+                "personal_notes": entry.personal_notes,
+                "margin_notes": json.loads(entry.margin_notes) if entry.margin_notes else {},
+                "ai_insights": entry.ai_insights,
+                "created_at": entry.created_at.isoformat() if entry.created_at else None,
+                "updated_at": entry.updated_at.isoformat() if entry.updated_at else None,
+            })
+    
+    return Response(
+        content=json.dumps({"entries": export_data}, indent=2, ensure_ascii=False),
+        media_type="application/json",
+        headers={"Content-Disposition": "attachment; filename=bible-diary.json"},
+    )
+
+
+@app.post("/api/commentary/regenerate")
+def regenerate_commentary(request: CommentaryRequest):
+    """Regenerate commentary for a passage and optionally save it."""
+    context = get_rag_system().get_relevant_context(request.passage, helper=request.helper, top_k=5)
+    
+    # Get passage text for better context
+    reader = get_bible_reader()
+    passage_text_obj = reader.get_passage_text(request.passage)
+    passage_text = request.passage
+    if passage_text_obj and passage_text_obj.get("verses"):
+        verses = passage_text_obj["verses"]
+        verse_lines = [f"{verse}: {text}" for verse, text in list(verses.items())[:30]]
+        passage_text = f"{request.passage}\n\n" + "\n".join(verse_lines)
+    
+    commentary = get_ollama_client().generate_commentary(
+        passage=passage_text,
+        context=context,
+        helper=request.helper,
+        personalized=request.personalized,
+    )
+    
+    return {
+        "passage": request.passage,
+        "helper": request.helper,
+        "commentary": commentary,
+        "timestamp": datetime.utcnow(),
     }
 
 
