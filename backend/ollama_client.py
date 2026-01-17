@@ -60,7 +60,7 @@ class OllamaClient:
             "options": {
                 "temperature": 0.7,
                 "top_p": 0.9,
-                "num_predict": 600,
+                "num_predict": 400,  # Reduced for faster response
             },
         }
 
@@ -70,7 +70,7 @@ class OllamaClient:
     def _post(self, endpoint: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         try:
             url = f"{self.local_url}{endpoint}"
-            response = requests.post(url, json=payload, timeout=180)
+            response = requests.post(url, json=payload, timeout=300)  # 5 min for slower machines
             response.raise_for_status()
             return response.json()
         except requests.exceptions.ConnectionError as e:
@@ -92,14 +92,14 @@ class OllamaClient:
 
     def _format_context(self, context: List[Dict[str, Any]]) -> str:
         if not context:
-            return "No additional context available."
+            return ""
         lines = []
-        for item in context[:3]:
+        for item in context[:2]:  # Reduced from 3 to 2 for faster generation
             snippet = item.get("text", "")
-            if len(snippet) > 280:
-                snippet = snippet[:280] + "..."
+            if len(snippet) > 200:  # Reduced from 280
+                snippet = snippet[:200] + "..."
             lines.append(f"- {snippet}")
-        return "Relevant teachings:\n" + "\n".join(lines)
+        return "Drawing from these teachings:\n" + "\n".join(lines)
 
     def _system_prompt(self, helper: str) -> str:
         if helper == "aquinas":

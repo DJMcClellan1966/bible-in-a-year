@@ -340,7 +340,13 @@ class BibleReader:
         if not abbrev:
             return Path(folder) / "missing.htm", reference
 
-        chapter_number = int(chapter)
+        # Handle chapter ranges like "19-22" or "1:1-10" - use first chapter
+        chapter_clean = re.split(r"[-:]", chapter)[0]
+        try:
+            chapter_number = int(chapter_clean)
+        except ValueError:
+            chapter_number = 1
+
         padding = 3 if abbrev == "PSA" else 2
         chapter_str = str(chapter_number).zfill(padding)
         filename = f"{abbrev}{chapter_str}.htm"
