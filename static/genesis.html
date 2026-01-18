@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genesis Condensed Commentary - Bible in a Year</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .chapter-nav {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+      .chapter-btn {
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        background: #f5f5f5;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+        color: #1f2937;
+      }
+      body.dark-mode .chapter-btn {
+        border-color: #444;
+        background: #2d2d2d;
+        color: #e5e5e5;
+      }
+      .chapter-btn:hover {
+        background: #4a90e2;
+        color: white;
+      }
+      .chapter-btn.active {
+        background: #4a90e2;
+        color: white;
+        font-weight: bold;
+      }
+      .commentary-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .commentary-header {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #ddd;
+      }
+      body.dark-mode .commentary-header {
+        border-bottom-color: #444;
+      }
+      .commentary-content {
+        line-height: 1.8;
+        font-size: 16px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        margin-top: 20px;
+        color: #1f2937;
+      }
+      body.dark-mode .commentary-content {
+        background: #2d2d2d;
+        color: #e5e5e5;
+      }
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+      body.dark-mode .loading {
+        color: #999;
+      }
+      .error {
+        color: #d32f2f;
+        padding: 20px;
+        background: #ffebee;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      body.dark-mode .error {
+        background: #3d1f1f;
+        color: #ff6b6b;
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: var(--accent-color, #4a90e2);
+        text-decoration: none;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+      .regenerate-btn {
+        margin-left: 10px;
+        padding: 6px 12px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h1>Genesis Condensed Commentary</h1>
+          <p>Synthesized insights from multiple commentaries, Augustine, and Aquinas</p>
+        </div>
+        <button id="toggle-theme" class="btn" title="Toggle dark mode" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">🌙</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="commentary-container">
+        <a href="index.html" class="back-link">← Back to Daily Reading</a>
+        
+        <div class="commentary-header">
+          <h2>Select Chapter</h2>
+          <div class="chapter-nav" id="chapter-nav"></div>
+        </div>
+
+        <div id="commentary-section">
+          <div class="loading" id="loading">Select a chapter to view commentary</div>
+          <div id="error" class="error" style="display: none;"></div>
+          <div id="commentary-content" class="commentary-content" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3 id="commentary-title"></h3>
+              <button id="regenerate-btn" class="btn regenerate-btn" style="display: none;">Regenerate</button>
+            </div>
+            <div id="commentary-text"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <p>Sources: Multiple commentaries, Augustine, Aquinas, and AI synthesis</p>
+    </footer>
+
+    <script>
+      const apiBase = "/api";
+      let currentChapter = null;
+
+      // Load chapter list
+      async function loadChapters() {
+        try {
+          const response = await fetch(`${apiBase}/genesis/chapters`);
+          const data = await response.json();
+          renderChapterNav(data.chapters);
+        } catch (error) {
+          showError("Failed to load chapters: " + error.message);
+        }
+      }
+
+      function renderChapterNav(chapters) {
+        const nav = document.getElementById("chapter-nav");
+        nav.innerHTML = chapters.map(ch => 
+          `<button class="chapter-btn" data-chapter="${ch}">Chapter ${ch}</button>`
+        ).join("");
+        
+        nav.addEventListener("click", (e) => {
+          if (e.target.classList.contains("chapter-btn")) {
+            const chapter = parseInt(e.target.dataset.chapter);
+            loadCommentary(chapter);
+          }
+        });
+      }
+
+      async function loadCommentary(chapter, regenerate = false) {
+        currentChapter = chapter;
+        
+        // Update active button
+        document.querySelectorAll(".chapter-btn").forEach(btn => {
+          btn.classList.toggle("active", parseInt(btn.dataset.chapter) === chapter);
+        });
+        
+        // Show loading
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("error").style.display = "none";
+        document.getElementById("commentary-content").style.display = "none";
+        document.getElementById("loading").textContent = regenerate 
+          ? "Generating new commentary..." 
+          : "Loading commentary...";
+        
+        try {
+          const response = await fetch(`${apiBase}/genesis/commentary/${chapter}?regenerate=${regenerate}`);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+          }
+          
+          const data = await response.json();
+          
+          // Hide loading, show content
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("commentary-title").textContent = `Genesis ${chapter}`;
+          document.getElementById("commentary-text").textContent = data.commentary;
+          document.getElementById("commentary-content").style.display = "block";
+          document.getElementById("regenerate-btn").style.display = "inline-block";
+          
+        } catch (error) {
+          document.getElementById("loading").style.display = "none";
+          showError("Failed to load commentary: " + error.message);
+        }
+      }
+
+      function showError(message) {
+        const errorDiv = document.getElementById("error");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+      }
+
+      // Regenerate button
+      document.getElementById("regenerate-btn").addEventListener("click", () => {
+        if (currentChapter) {
+          loadCommentary(currentChapter, true);
+        }
+      });
+
+      // Dark mode toggle
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
+        localStorage.setItem("darkMode", isDark);
+      }
+
+      document.getElementById("toggle-theme").addEventListener("click", toggleDarkMode);
+
+      // Load dark mode preference
+      if (localStorage.getItem("darkMode") === "true") {
+        toggleDarkMode();
+      }
+
+      // Load chapters on page load
+      loadChapters();
+    </script>
+  </body>
+</html>

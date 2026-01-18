@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Persona Conversations - Bible in a Year</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .chat-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 200px);
+      }
+      .persona-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      .persona-btn {
+        padding: 10px 20px;
+        border: 2px solid #4a90e2;
+        background: white;
+        color: #4a90e2;
+        cursor: pointer;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+      body.dark-mode .persona-btn {
+        background: #374151;
+        color: #93c5fd;
+        border-color: #60a5fa;
+      }
+      .persona-btn:hover {
+        background: #4a90e2;
+        color: white;
+      }
+      .persona-btn.active {
+        background: #4a90e2;
+        color: white;
+      }
+      body.dark-mode .persona-btn.active {
+        background: #60a5fa;
+        color: #1e3a8a;
+      }
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background: #f9f9f9;
+        min-height: 400px;
+      }
+      body.dark-mode .chat-messages {
+        background: #2d2d2d;
+        border-color: #4b5563;
+      }
+      .message {
+        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        max-width: 80%;
+      }
+      .message.user {
+        background: #e3f2fd;
+        margin-left: auto;
+        text-align: right;
+      }
+      body.dark-mode .message.user {
+        background: #1e3a5f;
+      }
+      .message.assistant {
+        background: #f5f5f5;
+        margin-right: auto;
+        border-left: 4px solid #4a90e2;
+      }
+      body.dark-mode .message.assistant {
+        background: #374151;
+        border-left-color: #60a5fa;
+      }
+      .message-header {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #666;
+        font-size: 14px;
+      }
+      body.dark-mode .message-header {
+        color: #999;
+      }
+      .message-content {
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+      .chat-input-area {
+        display: flex;
+        gap: 10px;
+      }
+      .chat-input {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+      body.dark-mode .chat-input {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+      }
+      .send-btn {
+        padding: 12px 24px;
+        background: #4a90e2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .send-btn:hover {
+        background: #357abd;
+      }
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-style: italic;
+      }
+      body.dark-mode .loading {
+        color: #999;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h1>AI Persona Conversations</h1>
+          <p>Chat naturally with Saints Augustine, Aquinas, and others</p>
+        </div>
+        <button id="toggle-theme" class="btn" title="Toggle dark mode" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">🌙</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="chat-container">
+        <a href="index.html" class="back-link">← Back to Daily Reading</a>
+        
+        <div class="persona-selector">
+          <button class="persona-btn active" data-persona="augustine">Augustine</button>
+          <button class="persona-btn" data-persona="aquinas">Aquinas</button>
+          <button class="persona-btn" data-persona="combined">Combined Wisdom</button>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+          <div class="message assistant">
+            <div class="message-header">Augustine</div>
+            <div class="message-content">Greetings, friend. I am Augustine of Hippo. How may I assist you in your study of Scripture today?</div>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <input type="text" id="chat-input" class="chat-input" placeholder="Ask a question or start a conversation..." />
+          <button id="send-btn" class="send-btn">Send</button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <p>AI Persona Conversations - Experience historical wisdom through natural dialogue</p>
+    </footer>
+
+    <script>
+      const apiBase = "/api";
+      let currentPersona = "augustine";
+      let conversationId = null;
+
+      // Persona selector
+      document.querySelectorAll(".persona-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".persona-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentPersona = btn.dataset.persona;
+          
+          // Reset conversation when switching personas
+          conversationId = null;
+          addMessage("assistant", btn.textContent, `Greetings! I am ${btn.textContent}. How may I assist you?`);
+        });
+      });
+
+      // Send message
+      document.getElementById("send-btn").addEventListener("click", sendMessage);
+      document.getElementById("chat-input").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+      });
+
+      async function sendMessage() {
+        const input = document.getElementById("chat-input");
+        const message = input.value.trim();
+        if (!message) return;
+
+        // Add user message to chat
+        addMessage("user", "You", message);
+        input.value = "";
+
+        // Show loading
+        const loadingId = addMessage("assistant", currentPersona, "Thinking...");
+
+        try {
+          const response = await fetch(`${apiBase}/persona/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message: message,
+              persona: currentPersona,
+              conversation_id: conversationId
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+          
+          // Update conversation ID
+          if (!conversationId) {
+            conversationId = data.conversation_id;
+          }
+
+          // Replace loading message
+          const messagesDiv = document.getElementById("chat-messages");
+          const loadingMsg = document.getElementById(loadingId);
+          if (loadingMsg) {
+            loadingMsg.querySelector(".message-content").textContent = data.response;
+            loadingMsg.classList.remove("loading");
+          } else {
+            addMessage("assistant", currentPersona, data.response);
+          }
+        } catch (error) {
+          const messagesDiv = document.getElementById("chat-messages");
+          const loadingMsg = document.getElementById(loadingId);
+          if (loadingMsg) {
+            loadingMsg.querySelector(".message-content").textContent = `Error: ${error.message}. Make sure Ollama is running.`;
+          }
+        }
+      }
+
+      function addMessage(role, author, content) {
+        const messagesDiv = document.getElementById("chat-messages");
+        const messageDiv = document.createElement("div");
+        const messageId = "msg-" + Date.now();
+        messageDiv.id = messageId;
+        messageDiv.className = `message ${role}`;
+        
+        messageDiv.innerHTML = `
+          <div class="message-header">${author}</div>
+          <div class="message-content">${content}</div>
+        `;
+        
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        
+        return messageId;
+      }
+
+      // Dark mode toggle
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
+        localStorage.setItem("darkMode", isDark);
+      }
+
+      document.getElementById("toggle-theme").addEventListener("click", toggleDarkMode);
+
+      // Load dark mode preference
+      if (localStorage.getItem("darkMode") === "true") {
+        toggleDarkMode();
+      }
+    </script>
+  </body>
+</html>

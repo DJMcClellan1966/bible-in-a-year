@@ -140,3 +140,35 @@ body.dark-mode .verse-block {
   border-left-color: #6b7280;
   color: #d1d5db;
 }
+
+/* Living Commentary styles */
+#commentary-feedback-panel {
+  background: #f9f9f9;
+}
+
+body.dark-mode #commentary-feedback-panel {
+  background: #2d2d2d;
+}
+
+body.dark-mode #commentary-meta {
+  color: #999;
+}
+
+#commentary-conflicts-panel {
+  background: #fff3cd;
+  border-left-color: #ffc107;
+}
+
+body.dark-mode #commentary-conflicts-panel {
+  background: #4d3f1a;
+  border-left-color: #fbbf24;
+}
+
+#versions-list > div {
+  background: #f9f9f9;
+}
+
+body.dark-mode #versions-list > div {
+  background: #2d2d2d;
+  border-left-color: #60a5fa;
+}

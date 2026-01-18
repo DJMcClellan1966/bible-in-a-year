@@ -33,10 +33,20 @@ python desktop_app.py
 ```
 
 ## Run (API + Web)
+
+### Local Access Only
 ```bash
 python -m backend.main
 ```
 Open `http://127.0.0.1:8000/static/index.html`
+
+### Access from iPad/Network
+```bash
+python run_for_ipad.py
+```
+Then access from iPad: `http://YOUR_IP_ADDRESS:8000/static/index.html`
+
+See `IPAD_ACCESS_GUIDE.md` for detailed instructions.
 
 ## Data Sources
 Place your Saint Augustine files in:

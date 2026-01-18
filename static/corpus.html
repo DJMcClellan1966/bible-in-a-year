@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Genesis Corpus - Bible in a Year</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .corpus-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .chapter-nav {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+      .chapter-btn {
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        background: #f5f5f5;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+        color: #1f2937;
+      }
+      body.dark-mode .chapter-btn {
+        border-color: #444;
+        background: #2d2d2d;
+        color: #e5e5e5;
+      }
+      .chapter-btn:hover {
+        background: #4a90e2;
+        color: white;
+      }
+      .chapter-btn.active {
+        background: #4a90e2;
+        color: white;
+        font-weight: bold;
+      }
+      .corpus-header {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #ddd;
+      }
+      body.dark-mode .corpus-header {
+        border-bottom-color: #444;
+      }
+      .entry-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      body.dark-mode .entry-card {
+        background: #374151;
+        border-color: #4b5563;
+        color: #f9fafb;
+      }
+      .entry-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+      }
+      body.dark-mode .entry-header {
+        border-bottom-color: #4b5563;
+      }
+      .entry-date {
+        font-weight: bold;
+        color: #4a90e2;
+      }
+      .entry-passage {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 10px 0;
+      }
+      .daily-summary {
+        background: #f0f7ff;
+        border-left: 4px solid #4a90e2;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+      }
+      body.dark-mode .daily-summary {
+        background: #1e3a5f;
+        border-left-color: #60a5fa;
+      }
+      .summary-verse {
+        font-style: italic;
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #1e40af;
+      }
+      body.dark-mode .summary-verse {
+        color: #93c5fd;
+      }
+      .summary-section {
+        margin: 10px 0;
+      }
+      .summary-label {
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+      .commentary-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+      }
+      body.dark-mode .commentary-section {
+        border-top-color: #4b5563;
+      }
+      .commentary-text {
+        line-height: 1.8;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 6px;
+        margin-top: 10px;
+      }
+      body.dark-mode .commentary-text {
+        background: #2d2d2d;
+        color: #e5e5e5;
+      }
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+      body.dark-mode .loading {
+        color: #999;
+      }
+      .error {
+        color: #d32f2f;
+        padding: 20px;
+        background: #ffebee;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      body.dark-mode .error {
+        background: #3d1f1f;
+        color: #ff6b6b;
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #4a90e2;
+        text-decoration: none;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+      body.dark-mode .empty-state {
+        color: #999;
+      }
+      .insights-list {
+        list-style: none;
+        padding: 0;
+      }
+      .insights-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+      }
+      body.dark-mode .insights-list li {
+        border-bottom-color: #4b5563;
+      }
+      .insights-list li:before {
+        content: "• ";
+        color: #4a90e2;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h1>Genesis Complete Corpus</h1>
+          <p>Comprehensive AI-modeled Bible data with commentary and daily summaries</p>
+        </div>
+        <button id="toggle-theme" class="btn" title="Toggle dark mode" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">🌙</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="corpus-container">
+        <a href="index.html" class="back-link">← Back to Daily Reading</a>
+        
+        <div class="corpus-header">
+          <h2>Select Chapter</h2>
+          <div class="chapter-nav" id="chapter-nav"></div>
+        </div>
+
+        <div id="corpus-section">
+          <div class="loading" id="loading">Select a chapter to view complete corpus</div>
+          <div id="error" class="error" style="display: none;"></div>
+          <div id="corpus-content" style="display: none;"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <p>Complete corpus with AI-modeled data, web sources, and synthesized commentary</p>
+    </footer>
+
+    <script>
+      const apiBase = "/api";
+      let currentChapter = null;
+
+      // Load chapter list
+      function loadChapters() {
+        const chapters = Array.from({length: 50}, (_, i) => i + 1);
+        renderChapterNav(chapters);
+      }
+
+      function renderChapterNav(chapters) {
+        const nav = document.getElementById("chapter-nav");
+        nav.innerHTML = chapters.map(ch => 
+          `<button class="chapter-btn" data-chapter="${ch}">Chapter ${ch}</button>`
+        ).join("");
+        
+        nav.addEventListener("click", (e) => {
+          if (e.target.classList.contains("chapter-btn")) {
+            const chapter = parseInt(e.target.dataset.chapter);
+            loadChapterCorpus(chapter);
+          }
+        });
+      }
+
+      async function loadChapterCorpus(chapter) {
+        currentChapter = chapter;
+        
+        // Update active button
+        document.querySelectorAll(".chapter-btn").forEach(btn => {
+          btn.classList.toggle("active", parseInt(btn.dataset.chapter) === chapter);
+        });
+        
+        // Show loading
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("error").style.display = "none";
+        document.getElementById("corpus-content").style.display = "none";
+        document.getElementById("loading").textContent = "Loading corpus for chapter " + chapter + "...";
+        
+        try {
+          const response = await fetch(`${apiBase}/genesis/corpus/chapter/${chapter}`);
+          if (!response.ok) {
+            if (response.status === 404) {
+              throw new Error("Corpus not found. Please run batch generation first.");
+            }
+            throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+          }
+          
+          const data = await response.json();
+          
+          if (!data.entries || data.entries.length === 0) {
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("corpus-content").innerHTML = `
+              <div class="empty-state">
+                <h3>No corpus entries found for Chapter ${chapter}</h3>
+                <p>Please run batch generation to create the corpus.</p>
+              </div>
+            `;
+            document.getElementById("corpus-content").style.display = "block";
+            return;
+          }
+          
+          // Render entries
+          renderCorpusEntries(data.entries, chapter);
+          
+          // Hide loading, show content
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("corpus-content").style.display = "block";
+          
+        } catch (error) {
+          document.getElementById("loading").style.display = "none";
+          showError("Failed to load corpus: " + error.message);
+        }
+      }
+
+      function renderCorpusEntries(entries, chapter) {
+        const content = document.getElementById("corpus-content");
+        
+        let html = `<h2>Genesis Chapter ${chapter} - Complete Corpus</h2>`;
+        html += `<p style="color: #666; margin-bottom: 20px;">${entries.length} entries found</p>`;
+        
+        entries.forEach(entry => {
+          const passageData = entry.passage_data || {};
+          const commentaryData = entry.commentary_data || {};
+          const dailySummary = entry.daily_summary || {};
+          
+          html += `
+            <div class="entry-card">
+              <div class="entry-header">
+                <span class="entry-date">${entry.date || 'Unknown date'}</span>
+                <span class="entry-passage">${passageData.reference || 'Unknown passage'}</span>
+              </div>
+              
+              ${dailySummary.summary_verse ? `
+                <div class="daily-summary">
+                  <div class="summary-verse">"${dailySummary.summary_verse}"</div>
+                  <div class="summary-section">
+                    <div class="summary-label">Key Message:</div>
+                    <div>${dailySummary.key_message || ''}</div>
+                  </div>
+                  <div class="summary-section">
+                    <div class="summary-label">Reflection:</div>
+                    <div>${dailySummary.reflection || ''}</div>
+                  </div>
+                  <div class="summary-section">
+                    <div class="summary-label">Application:</div>
+                    <div>${dailySummary.application || ''}</div>
+                  </div>
+                </div>
+              ` : ''}
+              
+              ${passageData.full_text ? `
+                <div style="margin: 15px 0;">
+                  <strong>Bible Text:</strong>
+                  <div style="margin-top: 8px; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                    ${passageData.full_text}
+                  </div>
+                </div>
+              ` : ''}
+              
+              ${commentaryData.synthesized_commentary ? `
+                <div class="commentary-section">
+                  <h3>Comprehensive Commentary</h3>
+                  <div class="commentary-text">${commentaryData.synthesized_commentary}</div>
+                </div>
+              ` : ''}
+              
+              ${commentaryData.key_insights && commentaryData.key_insights.length > 0 ? `
+                <div style="margin-top: 15px;">
+                  <strong>Key Insights:</strong>
+                  <ul class="insights-list">
+                    ${commentaryData.key_insights.map(insight => `<li>${insight}</li>`).join('')}
+                  </ul>
+                </div>
+              ` : ''}
+              
+              ${commentaryData.theological_themes && commentaryData.theological_themes.length > 0 ? `
+                <div style="margin-top: 15px;">
+                  <strong>Theological Themes:</strong>
+                  <div style="margin-top: 8px;">
+                    ${commentaryData.theological_themes.map(theme => 
+                      `<span style="display: inline-block; background: #e0e7ff; padding: 4px 12px; border-radius: 12px; margin: 4px; font-size: 14px;">${theme}</span>`
+                    ).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        });
+        
+        content.innerHTML = html;
+      }
+
+      function showError(message) {
+        const errorDiv = document.getElementById("error");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+      }
+
+      // Dark mode toggle
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
+        localStorage.setItem("darkMode", isDark);
+      }
+
+      document.getElementById("toggle-theme").addEventListener("click", toggleDarkMode);
+
+      // Load dark mode preference
+      if (localStorage.getItem("darkMode") === "true") {
+        toggleDarkMode();
+      }
+
+      // Load chapters on page load
+      loadChapters();
+    </script>
+  </body>
+</html>

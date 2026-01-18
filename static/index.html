@@ -10,6 +10,17 @@
     <header class="app-header">
       <h1>Bible in a Year</h1>
       <p>AI spiritual companions: Augustine & Aquinas</p>
+      <nav style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;">
+        <a href="genesis.html" style="color: white; text-decoration: underline;">Genesis Commentary</a>
+        <a href="corpus.html" style="color: white; text-decoration: underline;">Corpus</a>
+        <a href="persona.html" style="color: white; text-decoration: underline;">AI Persona Chat</a>
+        <a href="narrative.html" style="color: white; text-decoration: underline;">Stories</a>
+        <a href="characters.html" style="color: white; text-decoration: underline;">Characters</a>
+        <a href="profile.html" style="color: white; text-decoration: underline;">Profile</a>
+        <a href="study-agent.html" style="color: white; text-decoration: underline;">Study Agent</a>
+        <a href="timeline.html" style="color: white; text-decoration: underline;">Timeline</a>
+        <a href="debate.html" style="color: white; text-decoration: underline;">Debate</a>
+      </nav>
     </header>
 
     <main class="container">
@@ -35,8 +46,45 @@
       </section>
 
       <section class="card">
-        <h2>AI Commentary</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h2>AI Commentary</h2>
+          <div>
+            <button id="view-versions-btn" class="btn" style="display: none; margin-right: 5px; font-size: 12px; padding: 4px 8px;">Versions</button>
+            <button id="feedback-btn" class="btn" style="display: none; font-size: 12px; padding: 4px 8px;">Rate/Comment</button>
+          </div>
+        </div>
         <pre id="commentary" class="content"></pre>
+        <div id="commentary-meta" style="display: none; margin-top: 10px; font-size: 12px; color: #666;">
+          <span id="commentary-version-info"></span>
+          <span id="commentary-quality-score"></span>
+        </div>
+        <div id="commentary-feedback-panel" style="display: none; margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+          <h4>Provide Feedback</h4>
+          <div class="row" style="margin: 10px 0;">
+            <label>Rating:</label>
+            <select id="feedback-rating" style="width: 150px;">
+              <option value="">Select rating...</option>
+              <option value="5">5 - Excellent</option>
+              <option value="4">4 - Good</option>
+              <option value="3">3 - Fair</option>
+              <option value="2">2 - Poor</option>
+              <option value="1">1 - Very Poor</option>
+            </select>
+          </div>
+          <textarea id="feedback-text" placeholder="Your feedback or suggestions..." rows="3" style="width: 100%; margin: 10px 0;"></textarea>
+          <div class="row">
+            <button id="submit-feedback" class="btn">Submit Feedback</button>
+            <button id="cancel-feedback" class="btn" style="background: #999;">Cancel</button>
+          </div>
+        </div>
+        <div id="commentary-versions-panel" style="display: none; margin-top: 15px;">
+          <h4>Commentary Versions</h4>
+          <div id="versions-list"></div>
+        </div>
+        <div id="commentary-conflicts-panel" style="display: none; margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+          <h4>⚠️ Perspective Differences</h4>
+          <div id="conflicts-content"></div>
+        </div>
       </section>
 
       <section class="card">

@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cross-Temporal Dialogue - Bible in a Year</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .debate-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .mode-selector {
+        display: flex;
+        gap: 10px;
+        margin: 20px 0;
+        flex-wrap: wrap;
+      }
+      .mode-btn {
+        padding: 10px 20px;
+        border: 2px solid #4a90e2;
+        background: white;
+        color: #4a90e2;
+        cursor: pointer;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+      body.dark-mode .mode-btn {
+        background: #374151;
+        color: #93c5fd;
+        border-color: #60a5fa;
+      }
+      .mode-btn:hover {
+        background: #4a90e2;
+        color: white;
+      }
+      .mode-btn.active {
+        background: #4a90e2;
+        color: white;
+      }
+      body.dark-mode .mode-btn.active {
+        background: #60a5fa;
+        color: #1e3a8a;
+      }
+      .response-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4a90e2;
+      }
+      body.dark-mode .response-card {
+        background: #374151;
+        border-color: #4b5563;
+        border-left-color: #60a5fa;
+      }
+      .response-author {
+        font-size: 18px;
+        font-weight: 600;
+        color: #4a90e2;
+        margin-bottom: 10px;
+      }
+      body.dark-mode .response-author {
+        color: #60a5fa;
+      }
+      .response-content {
+        line-height: 1.8;
+        white-space: pre-wrap;
+      }
+      .moderator-summary {
+        background: #fff9e6;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid #ffc107;
+      }
+      body.dark-mode .moderator-summary {
+        background: #3d3420;
+        border-left-color: #fbbf24;
+      }
+      .panel-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h1>Cross-Temporal Dialogue</h1>
+          <p>Debates, panels, and historical Q&A with theologians</p>
+        </div>
+        <button id="toggle-theme" class="btn" title="Toggle dark mode" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">🌙</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="debate-container">
+        <a href="index.html" class="back-link">← Back to Daily Reading</a>
+        
+        <div class="mode-selector">
+          <button class="mode-btn active" data-mode="debate">Debate Mode</button>
+          <button class="mode-btn" data-mode="panel">Panel Discussion</button>
+          <button class="mode-btn" data-mode="historical">Historical Q&A</button>
+        </div>
+
+        <!-- Debate Mode -->
+        <div id="debate-mode" class="mode-panel">
+          <section class="card">
+            <h2>Debate Mode</h2>
+            <p>Pose a question and get opposing perspectives from two theologians</p>
+            <div class="row" style="margin: 15px 0;">
+              <select id="debate-persona1" style="width: 200px; padding: 8px;">
+                <option value="augustine">Augustine</option>
+                <option value="aquinas">Aquinas</option>
+              </select>
+              <span style="padding: 8px;">vs</span>
+              <select id="debate-persona2" style="width: 200px; padding: 8px;">
+                <option value="aquinas">Aquinas</option>
+                <option value="augustine">Augustine</option>
+              </select>
+            </div>
+            <textarea id="debate-question" rows="3" placeholder="Ask a theological question..." style="width: 100%; padding: 10px; margin: 10px 0;"></textarea>
+            <button id="debate-submit" class="btn">Start Debate</button>
+            <div id="debate-responses"></div>
+          </section>
+        </div>
+
+        <!-- Panel Mode -->
+        <div id="panel-mode" class="mode-panel" style="display: none;">
+          <section class="card">
+            <h2>Panel Discussion</h2>
+            <p>Get multiple perspectives on a question with moderator summary</p>
+            <div style="margin: 15px 0;">
+              <label>Select Panelists:</label>
+              <div style="margin: 10px 0;">
+                <label><input type="checkbox" name="panel-persona" value="augustine" checked /> Augustine</label>
+                <label style="margin-left: 15px;"><input type="checkbox" name="panel-persona" value="aquinas" checked /> Aquinas</label>
+              </div>
+            </div>
+            <textarea id="panel-question" rows="3" placeholder="Ask a question for the panel..." style="width: 100%; padding: 10px; margin: 10px 0;"></textarea>
+            <button id="panel-submit" class="btn">Start Panel Discussion</button>
+            <div id="panel-responses"></div>
+          </section>
+        </div>
+
+        <!-- Historical Q&A Mode -->
+        <div id="historical-mode" class="mode-panel" style="display: none;">
+          <section class="card">
+            <h2>Historical Q&A</h2>
+            <p>Ask questions with period-appropriate historical context</p>
+            <div class="row" style="margin: 15px 0;">
+              <select id="historical-persona" style="width: 200px; padding: 8px;">
+                <option value="augustine">Augustine</option>
+                <option value="aquinas">Aquinas</option>
+              </select>
+              <input type="text" id="historical-period" placeholder="Time period (optional)" style="flex: 1; padding: 8px; margin-left: 10px;" />
+            </div>
+            <textarea id="historical-question" rows="3" placeholder="Ask a historical question..." style="width: 100%; padding: 10px; margin: 10px 0;"></textarea>
+            <button id="historical-submit" class="btn">Ask Question</button>
+            <div id="historical-response"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <p>Cross-Temporal Dialogue - Experience historical wisdom in conversation</p>
+    </footer>
+
+    <script>
+      const apiBase = "/api";
+      let currentMode = "debate";
+
+      // Mode switching
+      document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentMode = btn.dataset.mode;
+          document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          
+          document.querySelectorAll(".mode-panel").forEach(p => p.style.display = "none");
+          document.getElementById(`${currentMode}-mode`).style.display = "block";
+        });
+      });
+
+      // Debate mode
+      document.getElementById("debate-submit").addEventListener("click", async () => {
+        const question = document.getElementById("debate-question").value.trim();
+        const persona1 = document.getElementById("debate-persona1").value;
+        const persona2 = document.getElementById("debate-persona2").value;
+
+        if (!question) {
+          alert("Please enter a question");
+          return;
+        }
+
+        const responsesDiv = document.getElementById("debate-responses");
+        responsesDiv.innerHTML = "<p>Generating debate responses...</p>";
+
+        try {
+          const response = await fetch(`${apiBase}/persona/debate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              question: question,
+              persona1: persona1,
+              persona2: persona2
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to generate debate");
+          }
+
+          const data = await response.json();
+          
+          responsesDiv.innerHTML = `
+            <h3>Question: ${data.question}</h3>
+            <div class="response-card">
+              <div class="response-author">${data.persona1}</div>
+              <div class="response-content">${data.response1}</div>
+            </div>
+            <div class="response-card">
+              <div class="response-author">${data.persona2}</div>
+              <div class="response-content">${data.response2}</div>
+            </div>
+          `;
+        } catch (error) {
+          responsesDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        }
+      });
+
+      // Panel mode
+      document.getElementById("panel-submit").addEventListener("click", async () => {
+        const question = document.getElementById("panel-question").value.trim();
+        const checkboxes = document.querySelectorAll('input[name="panel-persona"]:checked');
+        const personas = Array.from(checkboxes).map(cb => cb.value);
+
+        if (!question) {
+          alert("Please enter a question");
+          return;
+        }
+
+        if (personas.length < 2) {
+          alert("Please select at least 2 panelists");
+          return;
+        }
+
+        const responsesDiv = document.getElementById("panel-responses");
+        responsesDiv.innerHTML = "<p>Generating panel responses...</p>";
+
+        try {
+          const response = await fetch(`${apiBase}/persona/panel`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              question: question,
+              personas: personas
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to generate panel discussion");
+          }
+
+          const data = await response.json();
+          
+          const responsesHtml = Object.entries(data.responses).map(([persona, content]) => `
+            <div class="response-card">
+              <div class="response-author">${persona}</div>
+              <div class="response-content">${content}</div>
+            </div>
+          `).join("");
+
+          responsesDiv.innerHTML = `
+            <h3>Question: ${data.question}</h3>
+            <div class="panel-grid">
+              ${responsesHtml}
+            </div>
+            <div class="moderator-summary">
+              <h4>Moderator Summary</h4>
+              <div class="response-content">${data.moderator_summary}</div>
+            </div>
+          `;
+        } catch (error) {
+          responsesDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        }
+      });
+
+      // Historical Q&A mode
+      document.getElementById("historical-submit").addEventListener("click", async () => {
+        const question = document.getElementById("historical-question").value.trim();
+        const persona = document.getElementById("historical-persona").value;
+        const period = document.getElementById("historical-period").value.trim();
+
+        if (!question) {
+          alert("Please enter a question");
+          return;
+        }
+
+        const responseDiv = document.getElementById("historical-response");
+        responseDiv.innerHTML = "<p>Generating historical response...</p>";
+
+        try {
+          const response = await fetch(`${apiBase}/persona/historical-qa`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              question: question,
+              historical_figure: persona,
+              time_period: period || null
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to generate historical response");
+          }
+
+          const data = await response.json();
+          
+          responseDiv.innerHTML = `
+            <h3>Question: ${data.question}</h3>
+            ${data.time_period ? `<p style="color: #666; font-size: 14px;">Context: ${data.time_period}</p>` : ""}
+            <div class="response-card">
+              <div class="response-author">${data.historical_figure}</div>
+              <div class="response-content">${data.response}</div>
+            </div>
+          `;
+        } catch (error) {
+          responseDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        }
+      });
+
+      // Dark mode toggle
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
+        localStorage.setItem("darkMode", isDark);
+      }
+
+      document.getElementById("toggle-theme").addEventListener("click", toggleDarkMode);
+
+      if (localStorage.getItem("darkMode") === "true") {
+        toggleDarkMode();
+      }
+    </script>
+  </body>
+</html>

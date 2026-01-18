@@ -70,7 +70,15 @@ async function fetchReading() {
   
   await loadDiary(date, data.passages.join("; "));
   await loadProgress();
+  
+  // Load proactive insights if available
+  if (data.passages && data.passages.length > 0) {
+    loadProactiveInsights(data.passages[0], date);
+  }
 }
+
+let currentCommentaryPassage = null;
+let currentCommentaryHelper = null;
 
 async function requestCommentary(helper) {
   commentaryBox.textContent = "Loading commentary... (this may take 1-2 minutes)";
@@ -84,11 +92,30 @@ async function requestCommentary(helper) {
       return;
     }
     const reading = await readingResponse.json();
+    const passages = reading.passages.join("; ");
+    currentCommentaryPassage = passages;
+    currentCommentaryHelper = helper;
+    
+    // Try to get latest version from living commentary system
+    try {
+      const versionResponse = await fetch(`${apiBase}/commentary/latest/${encodeURIComponent(passages.split(";")[0])}?helper=${helper}`);
+      if (versionResponse.ok) {
+        const versionData = await versionResponse.json();
+        commentaryBox.textContent = versionData.content || "No commentary available.";
+        displayCommentaryMeta(versionData);
+        checkForConflicts(passages.split(";")[0]);
+        return;
+      }
+    } catch (e) {
+      // Fallback to regular generation
+    }
+    
+    // Fallback: generate new commentary
     const response = await fetch(`${apiBase}/commentary`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        passage: reading.passages.join("; "),
+        passage: passages,
         helper: helper,
         personalized: true,
       }),
@@ -101,8 +128,127 @@ async function requestCommentary(helper) {
     }
     const data = await response.json();
     commentaryBox.textContent = data.commentary || "No commentary available.";
+    
+    // Hide meta if not from living commentary
+    document.getElementById("commentary-meta").style.display = "none";
   } catch (error) {
     commentaryBox.textContent = `Error: ${error.message || "Failed to get commentary. Make sure Ollama is running."}`;
+  }
+}
+
+function displayCommentaryMeta(versionData) {
+  const metaDiv = document.getElementById("commentary-meta");
+  const versionInfo = document.getElementById("commentary-version-info");
+  const qualityScore = document.getElementById("commentary-quality-score");
+  
+  versionInfo.textContent = `Version ${versionData.version}`;
+  qualityScore.textContent = ` | Quality: ${(versionData.quality_score * 100).toFixed(0)}%`;
+  
+  metaDiv.style.display = "block";
+  document.getElementById("view-versions-btn").style.display = "inline-block";
+  document.getElementById("feedback-btn").style.display = "inline-block";
+}
+
+async function checkForConflicts(passage) {
+  try {
+    const response = await fetch(`${apiBase}/commentary/conflicts/${encodeURIComponent(passage)}`);
+    if (!response.ok) return;
+    
+    const data = await response.json();
+    if (data.conflicts && data.conflicts.length > 0) {
+      const conflictsPanel = document.getElementById("commentary-conflicts-panel");
+      const conflictsContent = document.getElementById("conflicts-content");
+      
+      conflictsContent.innerHTML = data.conflicts.map(conflict => `
+        <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 4px;">
+          <strong>Issue:</strong> ${conflict.issue}
+        </div>
+      `).join("");
+      
+      conflictsPanel.style.display = "block";
+    }
+  } catch (e) {
+    // Silently fail
+  }
+}
+
+async function loadCommentaryVersions() {
+  if (!currentCommentaryPassage || !currentCommentaryHelper) return;
+  
+  const passage = currentCommentaryPassage.split(";")[0];
+  const versionsPanel = document.getElementById("commentary-versions-panel");
+  const versionsList = document.getElementById("versions-list");
+  
+  try {
+    const response = await fetch(`${apiBase}/commentary/versions/${encodeURIComponent(passage)}?helper=${currentCommentaryHelper}`);
+    if (!response.ok) {
+      versionsList.innerHTML = "<p>No versions found.</p>";
+      return;
+    }
+    
+    const data = await response.json();
+    versionsList.innerHTML = data.versions.map(v => `
+      <div style="padding: 10px; margin: 10px 0; background: #f9f9f9; border-radius: 4px; border-left: 3px solid #4a90e2;">
+        <strong>Version ${v.version}</strong> 
+        <span style="color: #666; font-size: 12px;">(${new Date(v.generated_at).toLocaleDateString()})</span>
+        <div style="font-size: 12px; margin-top: 5px;">
+          Quality: ${(v.quality_score * 100).toFixed(0)}% | 
+          Feedback: ${v.feedback_count} | 
+          ${v.improvements.length > 0 ? `Improvements: ${v.improvements.join(", ")}` : ""}
+        </div>
+      </div>
+    `).join("");
+    
+    versionsPanel.style.display = versionsPanel.style.display === "none" ? "block" : "none";
+  } catch (error) {
+    versionsList.innerHTML = `<p>Error loading versions: ${error.message}</p>`;
+  }
+}
+
+async function submitCommentaryFeedback() {
+  if (!currentCommentaryPassage || !currentCommentaryHelper) return;
+  
+  const passage = currentCommentaryPassage.split(";")[0];
+  const rating = document.getElementById("feedback-rating").value;
+  const feedbackText = document.getElementById("feedback-text").value.trim();
+  
+  if (!rating && !feedbackText) {
+    alert("Please provide a rating or feedback.");
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${apiBase}/commentary/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        passage: passage,
+        helper: currentCommentaryHelper,
+        feedback: feedbackText || "No comment",
+        rating: rating ? parseInt(rating) : null
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to submit feedback");
+    }
+    
+    const data = await response.json();
+    
+    if (data.new_version_generated) {
+      alert("Thank you for your feedback! A new improved version has been generated.");
+      // Reload commentary
+      requestCommentary(currentCommentaryHelper);
+    } else {
+      alert("Thank you for your feedback!");
+    }
+    
+    // Hide feedback panel
+    document.getElementById("commentary-feedback-panel").style.display = "none";
+    document.getElementById("feedback-rating").value = "";
+    document.getElementById("feedback-text").value = "";
+  } catch (error) {
+    alert(`Error submitting feedback: ${error.message}`);
   }
 }
 
@@ -305,9 +451,82 @@ document.querySelectorAll("button[data-helper]").forEach((btn) => {
 document.getElementById("ask-question").addEventListener("click", askQuestion);
 document.getElementById("save-diary").addEventListener("click", saveDiary);
 
+// Living Commentary System integration
+document.getElementById("view-versions-btn").addEventListener("click", loadCommentaryVersions);
+document.getElementById("feedback-btn").addEventListener("click", () => {
+  const panel = document.getElementById("commentary-feedback-panel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+});
+document.getElementById("submit-feedback").addEventListener("click", submitCommentaryFeedback);
+document.getElementById("cancel-feedback").addEventListener("click", () => {
+  document.getElementById("commentary-feedback-panel").style.display = "none";
+  document.getElementById("feedback-rating").value = "";
+  document.getElementById("feedback-text").value = "";
+});
+
 // Load dark mode preference
 if (localStorage.getItem("darkMode") === "true") {
   toggleDarkMode();
+}
+
+// Proactive Insights
+async function loadProactiveInsights(passage, readingDate) {
+  try {
+    const response = await fetch(`${apiBase}/predictive/insights/${encodeURIComponent(passage)}?reading_date=${readingDate}`);
+    if (!response.ok) return;
+    
+    const insights = await response.json();
+    if (insights.predictions && insights.predictions.length > 0) {
+      displayProactiveInsights(insights);
+    }
+  } catch (error) {
+    // Silently fail - insights are optional
+  }
+}
+
+function displayProactiveInsights(insights) {
+  // Create or update insights section
+  let insightsBox = document.getElementById("proactive-insights");
+  if (!insightsBox) {
+    // Find commentary box and add insights above it
+    const commentarySection = document.querySelector('section.card h2');
+    if (commentarySection && commentarySection.textContent.includes("AI Commentary")) {
+      insightsBox = document.createElement("div");
+      insightsBox.id = "proactive-insights";
+      insightsBox.className = "card";
+      insightsBox.style.marginTop = "1.5rem";
+      commentarySection.parentElement.parentElement.insertBefore(insightsBox, commentarySection.parentElement);
+      
+      const title = document.createElement("h2");
+      title.textContent = "💡 Proactive Insights";
+      insightsBox.appendChild(title);
+      
+      const content = document.createElement("div");
+      content.id = "insights-content";
+      content.className = "content";
+      insightsBox.appendChild(content);
+    }
+  }
+  
+  if (insightsBox) {
+    const content = document.getElementById("insights-content");
+    if (content) {
+      const predictions = insights.predictions.map(p => {
+        const icon = {
+          "question": "❓",
+          "connection": "🔗",
+          "warning": "⚠️",
+          "suggestion": "💭"
+        }[p.type] || "•";
+        
+        return `<div style="padding: 10px; margin: 8px 0; background: #f0f7ff; border-left: 3px solid #4a90e2; border-radius: 4px;">
+          <strong>${icon} ${p.type.charAt(0).toUpperCase() + p.type.slice(1)}:</strong> ${p.content}
+        </div>`;
+      }).join("");
+      
+      content.innerHTML = predictions;
+    }
+  }
 }
 
 Promise.all([loadVersions(), loadReadingPlans()]).then(fetchReading);

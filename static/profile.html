@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Theological Profile - Bible in a Year</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .profile-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .trait-card {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+        border-left: 4px solid #4a90e2;
+      }
+      body.dark-mode .trait-card {
+        background: #374151;
+        border-color: #4b5563;
+        border-left-color: #60a5fa;
+      }
+      .trait-name {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #4a90e2;
+      }
+      body.dark-mode .trait-name {
+        color: #60a5fa;
+      }
+      .trait-strength {
+        margin: 10px 0;
+      }
+      .strength-bar {
+        height: 20px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 5px;
+      }
+      body.dark-mode .strength-bar {
+        background: #4b5563;
+      }
+      .strength-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4a90e2, #60a5fa);
+        transition: width 0.3s;
+      }
+      .tradition-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+      .tradition-card {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        border: 2px solid #ddd;
+      }
+      body.dark-mode .tradition-card {
+        background: #2d2d2d;
+        border-color: #4b5563;
+      }
+      .tradition-name {
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      .tradition-score {
+        font-size: 24px;
+        color: #4a90e2;
+        font-weight: bold;
+      }
+      body.dark-mode .tradition-score {
+        color: #60a5fa;
+      }
+      .recommendations {
+        background: #f0f7ff;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      body.dark-mode .recommendations {
+        background: #1e3a5f;
+      }
+      .recommendation-item {
+        padding: 10px;
+        margin: 8px 0;
+        background: white;
+        border-radius: 4px;
+        border-left: 3px solid #4a90e2;
+      }
+      body.dark-mode .recommendation-item {
+        background: #374151;
+        border-left-color: #60a5fa;
+      }
+      .growth-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+      }
+      .metric-card {
+        background: #fff9e6;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      body.dark-mode .metric-card {
+        background: #3d3420;
+      }
+      .metric-value {
+        font-size: 28px;
+        font-weight: bold;
+        color: #4a90e2;
+        margin: 10px 0;
+      }
+      body.dark-mode .metric-value {
+        color: #60a5fa;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h1>Theological DNA Profile</h1>
+          <p>Your personal theological profile and growth tracking</p>
+        </div>
+        <button id="toggle-theme" class="btn" title="Toggle dark mode" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">🌙</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="profile-container">
+        <a href="index.html" class="back-link">← Back to Daily Reading</a>
+        
+        <div style="text-align: right; margin: 20px 0;">
+          <button id="rebuild-profile" class="btn">Rebuild Profile</button>
+        </div>
+
+        <div id="loading" style="text-align: center; padding: 40px;">
+          <p>Building your theological profile...</p>
+          <p style="font-size: 14px; color: #666;">This may take a minute</p>
+        </div>
+
+        <div id="profile-content" style="display: none;">
+          <section class="card">
+            <h2>Theological Traits</h2>
+            <div id="traits-list"></div>
+          </section>
+
+          <section class="card">
+            <h2>Tradition Alignment</h2>
+            <p>How your profile aligns with historical theological traditions</p>
+            <div id="traditions-list" class="tradition-grid"></div>
+          </section>
+
+          <section class="card">
+            <h2>Growth Metrics</h2>
+            <div id="growth-metrics" class="growth-metrics"></div>
+          </section>
+
+          <section class="card">
+            <h2>Reading Patterns</h2>
+            <div id="reading-patterns"></div>
+          </section>
+
+          <section class="card">
+            <h2>Personalized Recommendations</h2>
+            <div id="recommendations" class="recommendations"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <p>Theological DNA Profile - Discover your unique theological identity</p>
+    </footer>
+
+    <script>
+      const apiBase = "/api";
+
+      async function loadProfile(rebuild = false) {
+        const loading = document.getElementById("loading");
+        const content = document.getElementById("profile-content");
+        
+        loading.style.display = "block";
+        content.style.display = "none";
+
+        try {
+          const response = await fetch(`${apiBase}/theological-profile?rebuild=${rebuild}`);
+          if (!response.ok) {
+            throw new Error("Failed to load profile");
+          }
+
+          const profile = await response.json();
+          displayProfile(profile);
+
+          loading.style.display = "none";
+          content.style.display = "block";
+        } catch (error) {
+          loading.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        }
+      }
+
+      function displayProfile(profile) {
+        // Display traits
+        const traitsList = document.getElementById("traits-list");
+        traitsList.innerHTML = profile.traits.map(trait => `
+          <div class="trait-card">
+            <div class="trait-name">${trait.name}</div>
+            <div class="trait-strength">
+              <div>Strength: ${(trait.strength * 100).toFixed(0)}% | Trend: ${trait.growth_trend}</div>
+              <div class="strength-bar">
+                <div class="strength-fill" style="width: ${trait.strength * 100}%"></div>
+              </div>
+            </div>
+            <div style="margin-top: 10px; font-size: 14px; color: #666;">
+              <strong>Evidence:</strong><br>
+              ${trait.evidence.map(e => `• ${e}`).join("<br>")}
+            </div>
+          </div>
+        `).join("");
+
+        // Display tradition alignment
+        const traditionsList = document.getElementById("traditions-list");
+        traditionsList.innerHTML = Object.entries(profile.tradition_alignment).map(([name, score]) => `
+          <div class="tradition-card">
+            <div class="tradition-name">${name}</div>
+            <div class="tradition-score">${(score * 100).toFixed(0)}%</div>
+          </div>
+        `).join("");
+
+        // Display growth metrics
+        const growthMetrics = document.getElementById("growth-metrics");
+        const metrics = profile.growth_metrics;
+        growthMetrics.innerHTML = `
+          <div class="metric-card">
+            <div>Growth Rate</div>
+            <div class="metric-value">${(metrics.growth_rate * 100).toFixed(1)}%</div>
+            <div style="font-size: 12px; color: #666;">${metrics.engagement_trend}</div>
+          </div>
+          <div class="metric-card">
+            <div>Consistency</div>
+            <div class="metric-value">${(metrics.consistency * 100).toFixed(0)}%</div>
+            <div style="font-size: 12px; color: #666;">Reading frequency</div>
+          </div>
+        `;
+
+        // Display reading patterns
+        const readingPatterns = document.getElementById("reading-patterns");
+        const patterns = profile.reading_patterns;
+        readingPatterns.innerHTML = `
+          <p><strong>Total Readings:</strong> ${patterns.total_readings}</p>
+          <p><strong>Engagement Level:</strong> ${patterns.engagement_level}</p>
+          <p><strong>Favorite Books:</strong> ${patterns.favorite_books.map(b => `${b[0]} (${b[1]} readings)`).join(", ")}</p>
+        `;
+
+        // Display recommendations
+        const recommendations = document.getElementById("recommendations");
+        recommendations.innerHTML = profile.recommendations.map(rec => `
+          <div class="recommendation-item">${rec}</div>
+        `).join("");
+      }
+
+      document.getElementById("rebuild-profile").addEventListener("click", () => {
+        loadProfile(true);
+      });
+
+      // Dark mode toggle
+      function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
+        localStorage.setItem("darkMode", isDark);
+      }
+
+      document.getElementById("toggle-theme").addEventListener("click", toggleDarkMode);
+
+      if (localStorage.getItem("darkMode") === "true") {
+        toggleDarkMode();
+      }
+
+      // Load profile on page load
+      loadProfile();
+    </script>
+  </body>
+</html>
