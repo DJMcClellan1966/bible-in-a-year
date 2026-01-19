@@ -27,6 +27,10 @@ from .theological_profile import TheologicalProfileEngine
 from .study_agent import AutonomousStudyAgent
 from .bible_timeline import LivingBibleTimeline
 from .character_study import CharacterStudySystem
+from .character_bible import CharacterBible
+from .enhanced_bible_reader import EnhancedBibleReader
+from .daily_discovery import DailyDiscoveryEngine
+from .great_thinkers import GreatThinkersSystem
 
 
 class CommentaryRequest(BaseModel):
@@ -89,6 +93,9 @@ _theological_profile: Optional[TheologicalProfileEngine] = None
 _study_agent: Optional[AutonomousStudyAgent] = None
 _bible_timeline: Optional[LivingBibleTimeline] = None
 _character_study: Optional[CharacterStudySystem] = None
+_enhanced_reader: Optional[EnhancedBibleReader] = None
+_daily_discovery: Optional[DailyDiscoveryEngine] = None
+_great_thinkers: Optional[GreatThinkersSystem] = None
 
 
 def get_bible_reader() -> BibleReader:
@@ -181,6 +188,34 @@ def get_character_study() -> CharacterStudySystem:
     if _character_study is None:
         _character_study = CharacterStudySystem()
     return _character_study
+
+
+def get_character_bible() -> CharacterBible:
+    global _character_bible
+    if _character_bible is None:
+        _character_bible = CharacterBible()
+    return _character_bible
+
+
+def get_enhanced_reader() -> EnhancedBibleReader:
+    global _enhanced_reader
+    if _enhanced_reader is None:
+        _enhanced_reader = EnhancedBibleReader()
+    return _enhanced_reader
+
+
+def get_daily_discovery() -> DailyDiscoveryEngine:
+    global _daily_discovery
+    if _daily_discovery is None:
+        _daily_discovery = DailyDiscoveryEngine()
+    return _daily_discovery
+
+
+def get_great_thinkers() -> GreatThinkersSystem:
+    global _great_thinkers
+    if _great_thinkers is None:
+        _great_thinkers = GreatThinkersSystem()
+    return _great_thinkers
 
 
 @app.get("/")
@@ -309,6 +344,60 @@ def get_commentary(request: CommentaryRequest):
         "commentary": commentary,
         "timestamp": datetime.utcnow(),
     }
+
+
+class ModernLanguageRequest(BaseModel):
+    passage: str
+    original_text: Optional[str] = None
+
+
+@app.post("/api/bible/modern-language")
+def get_modern_language_explanation(request: ModernLanguageRequest):
+    """Get modern language explanation/paraphrase of a Bible passage."""
+    try:
+        # Get the original passage text if not provided
+        if not request.original_text:
+            reader = get_bible_reader()
+            passage_text_obj = reader.get_passage_text(request.passage)
+            if passage_text_obj and passage_text_obj.get("verses"):
+                original_text = "\n".join([
+                    f"{verse}: {text}"
+                    for verse, text in passage_text_obj["verses"].items()
+                ])
+            else:
+                original_text = f"Passage: {request.passage}"
+        else:
+            original_text = request.original_text
+        
+        # Generate modern language explanation using Ollama
+        ollama = get_ollama_client()
+        
+        prompt = f"""Rewrite this Bible passage in clear, modern English while preserving the original meaning:
+
+{original_text}
+
+Provide:
+1. A modern language paraphrase that makes the meaning clear and accessible
+2. Keep the same structure and flow as the original
+3. Use contemporary language while maintaining reverence
+4. Explain any archaic terms or cultural references in simple terms
+
+Write the modern language version:"""
+        
+        system = "You are a biblical scholar who helps make Scripture accessible through clear, modern language while preserving theological accuracy."
+        
+        # Use the Ollama client's _generate method (private method access needed)
+        # We'll access it through the class for now - in production, add a public method
+        modern_text = ollama._generate(prompt, system, ollama.default_model)
+        
+        return {
+            "passage": request.passage,
+            "original": original_text,
+            "modern": modern_text,
+            "timestamp": datetime.utcnow(),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating modern language: {str(e)}")
 
 
 @app.post("/api/ask")
@@ -464,12 +553,6 @@ def get_helpers():
                 "name": "Saint Thomas Aquinas",
                 "description": "Doctor Angelicus, author of Summa Theologica.",
                 "specialties": ["Theology", "Reason", "Systematic thought"],
-            },
-            {
-                "id": "combined",
-                "name": "Combined Wisdom",
-                "description": "Synthesized insights from Augustine and Aquinas.",
-                "specialties": ["Balanced guidance", "Context", "Doctrine"],
             },
         ]
     }
@@ -1328,6 +1411,271 @@ def get_characters_for_passage(passage: str):
             for c in characters
         ]
     }
+
+
+# ===== Character Bible =====
+
+@app.get("/api/character-bible/perspective")
+def get_character_perspective(character: str, passage: str):
+    """Get a character's unique perspective on a Bible passage."""
+    character_bible = get_character_bible()
+    
+    try:
+        narrative = character_bible.get_character_perspective(character, passage)
+        return {
+            "character": narrative.character,
+            "passage": narrative.passage,
+            "narrative": narrative.narrative_text,
+            "perspective": narrative.perspective,
+            "emotional_tone": narrative.emotional_tone,
+            "key_insights": narrative.key_insights
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting character perspective: {str(e)}")
+
+
+@app.get("/api/character-bible/chapter")
+def get_character_bible_chapter(character: str, book: str, chapter: int):
+    """Get a full chapter from a character's perspective."""
+    character_bible = get_character_bible()
+    
+    try:
+        chapter_data = character_bible.get_character_bible_chapter(character, book, chapter)
+        return {
+            "character": chapter_data.character,
+            "book": chapter_data.book,
+            "chapter": chapter_data.chapter,
+            "title": chapter_data.title,
+            "narrative": chapter_data.narrative,
+            "character_thoughts": chapter_data.character_thoughts,
+            "connections": chapter_data.connections,
+            "timeline_context": chapter_data.timeline_context
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting character chapter: {str(e)}")
+
+
+@app.get("/api/character-bible/book/{book}")
+def get_characters_for_book(book: str):
+    """Get all characters who appear in a book."""
+    character_bible = get_character_bible()
+    
+    try:
+        characters = character_bible.get_characters_for_book(book)
+        return {
+            "book": book,
+            "characters": characters
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting book characters: {str(e)}")
+
+
+# ===== Enhanced Bible with Integrated Commentary =====
+
+@app.get("/api/bible/enhanced/{passage}")
+def get_enhanced_passage(passage: str, generate: bool = False):
+    """Get a Bible passage with integrated modern exegesis and church fathers' wisdom."""
+    try:
+        enhanced = get_enhanced_reader()
+        enhanced_passage = enhanced.get_enhanced_passage(passage, generate_if_missing=generate)
+        
+        if not enhanced_passage:
+            raise HTTPException(status_code=404, detail="Passage not found")
+        
+        return {
+            "passage": enhanced_passage.passage,
+            "verses": enhanced_passage.verses,
+            "modern_exegesis": enhanced_passage.modern_exegesis,
+            "church_fathers_wisdom": enhanced_passage.church_fathers_wisdom,
+            "integrated_commentary": enhanced_passage.integrated_commentary,
+            "key_insights": enhanced_passage.key_insights or [],
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+@app.post("/api/bible/enhanced-plan/create")
+def create_enhanced_plan(start_date: Optional[date] = None, passages_per_day: int = 1):
+    """Create an enhanced reading plan with integrated commentary."""
+    try:
+        enhanced = get_enhanced_reader()
+        plan = enhanced.create_enhanced_reading_plan(start_date=start_date, passages_per_day=passages_per_day)
+        return plan
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating plan: {str(e)}")
+
+
+@app.get("/api/discovery/today")
+def get_todays_discovery(generate: bool = False):
+    """Get today's discovery - something fascinating to draw you back."""
+    try:
+        engine = get_daily_discovery()
+        discovery = engine.get_discovery_for_date(date.today(), generate_if_missing=generate)
+        
+        if not discovery:
+            return {
+                "date": date.today().isoformat(),
+                "title": "Coming soon...",
+                "type": "insight",
+                "passage": "Genesis 1",
+                "discovery_text": "Generate a discovery to reveal fascinating insights!",
+                "related_passages": [],
+                "why_interesting": "Discoveries reveal hidden connections and patterns.",
+                "explore_further": []
+            }
+        
+        return {
+            "date": discovery.date,
+            "title": discovery.title,
+            "type": discovery.type,
+            "passage": discovery.passage,
+            "discovery_text": discovery.discovery_text,
+            "related_passages": discovery.related_passages,
+            "why_interesting": discovery.why_interesting,
+            "explore_further": discovery.explore_further
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+
+# ===== Discovery Mode - Comprehensive Deep Dive =====
+
+@app.get("/api/discover/{passage}")
+def discover_passage(passage: str, version: Optional[str] = None):
+    """Comprehensive discovery endpoint - aggregates all systems for deep exploration."""
+    try:
+        # 1. Get passage text
+        passage_text = get_bible_reader().get_passage_text(passage, version=version)
+        
+        # 2. Get multiple commentaries (try to get in parallel, but handle failures gracefully)
+        commentaries = {}
+        try:
+            rag = get_rag_system()
+            ollama = get_ollama_client()
+            
+            for helper in ["augustine", "aquinas"]:  # Removed "combined" - use Great Thinkers instead
+                try:
+                    context = rag.get_relevant_context(passage, helper=helper, top_k=5)
+                    commentary = ollama.generate_commentary(
+                        passage=passage,
+                        context=context,
+                        helper=helper,
+                        personalized=False
+                    )
+                    commentaries[helper] = commentary
+                except Exception as e:
+                    commentaries[helper] = None
+        except Exception:
+            pass
+        
+        # 3. Get timeline events
+        timeline_events = []
+        try:
+            timeline = get_bible_timeline()
+            events = timeline.get_events_for_passage(passage)
+            timeline_events = [
+                {
+                    "event_id": e.event_id,
+                    "title": e.title,
+                    "date_estimate": e.date_estimate,
+                    "description": e.description
+                }
+                for e in events
+            ]
+        except Exception:
+            pass
+        
+        # 4. Get characters
+        characters = []
+        try:
+            char_system = get_character_study()
+            chars = char_system.get_characters_for_passage(passage)
+            characters = [
+                {
+                    "character_id": c.character_id,
+                    "name": c.name,
+                    "category": c.category,
+                    "description": c.description
+                }
+                for c in chars
+            ]
+        except Exception:
+            pass
+        
+        # 5. Get predictive insights (connections, etc.)
+        insights = {}
+        try:
+            companion = get_predictive_companion()
+            # Get connections
+            connections = companion.find_connections(passage)
+            insights["connections"] = [
+                {
+                    "related_passage": c.related_passage,
+                    "relationship": c.relationship,
+                    "explanation": c.explanation
+                }
+                for c in connections
+            ]
+            
+            # Get proactive insights
+            try:
+                proactive = companion.get_proactive_insights(
+                    passage=passage,
+                    reading_date=date.today(),
+                    user_history=[]
+                )
+                insights["questions"] = proactive.get("predicted_questions", [])
+                insights["warnings"] = proactive.get("difficulty_warnings", [])
+            except Exception:
+                pass
+        except Exception:
+            insights = {"connections": []}
+        
+        # 6. Get narrative connections
+        narrative_info = {}
+        try:
+            narrative = get_narrative_engine()
+            # Try to find if this passage is part of a story
+            stories = narrative.get_all_stories()
+            for story in stories:
+                if passage in story.passages:
+                    narrative_info = {
+                        "story_id": story.story_id,
+                        "title": story.title,
+                        "description": story.description,
+                        "passages": story.passages
+                    }
+                    break
+        except Exception:
+            pass
+        
+        # 7. Get living commentary version info
+        commentary_meta = {}
+        try:
+            living = get_living_commentary()
+            latest = living.get_latest_version(passage, helper="augustine")
+            if latest:
+                commentary_meta = {
+                    "version": latest.version,
+                    "generated_at": latest.generated_at.isoformat() if hasattr(latest.generated_at, 'isoformat') else str(latest.generated_at),
+                    "quality_score": latest.quality_score
+                }
+        except Exception:
+            pass
+        
+        return {
+            "passage": passage,
+            "passage_text": passage_text,
+            "commentaries": commentaries,
+            "timeline_events": timeline_events,
+            "characters": characters,
+            "insights": insights,
+            "narrative": narrative_info,
+            "commentary_meta": commentary_meta,
+            "discovered_at": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error in discovery: {str(e)}")
 
 
 if __name__ == "__main__":

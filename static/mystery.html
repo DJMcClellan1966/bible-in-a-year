@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mystery Tour - Biblical Mysteries Explored</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .mystery-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 30px;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        box-shadow: var(--shadow-soft);
+        border-left: 6px solid #9c27b0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      .mystery-card:hover {
+        transform: translateX(5px);
+        box-shadow: var(--shadow-medium);
+      }
+      body.dark-mode .mystery-card {
+        background: rgba(30, 30, 50, 0.95);
+      }
+      .mystery-verse {
+        font-size: 1.2em;
+        font-style: italic;
+        color: #9c27b0;
+        margin: 15px 0;
+        padding: 15px;
+        background: rgba(156, 39, 176, 0.1);
+        border-radius: 8px;
+      }
+      body.dark-mode .mystery-verse {
+        color: #ba68c8;
+      }
+      .mystery-explanation {
+        margin: 20px 0;
+        line-height: 1.8;
+      }
+      .thinker-view {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px dashed #9c27b0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>🔍 Mystery Tour</h1>
+      <p>Explore the most mysterious verses and what great thinkers have said about them</p>
+      <nav>
+        <a href="index.html">Discovery</a>
+        <a href="exposition.html">Exposition</a>
+        <a href="thoughts.html">Thoughts & Discourse</a>
+        <a href="persona.html">AI Conversations</a>
+        <a href="narrative.html">Stories</a>
+        <a href="characters.html">Characters</a>
+        <a href="timeline.html">Timeline</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div id="mysteries-container">
+        <div class="mystery-card" onclick="exploreMystery('Genesis 1:1')">
+          <h2>🌌 The Mystery of Creation</h2>
+          <div class="mystery-verse">"In the beginning God created the heaven and the earth." - Genesis 1:1</div>
+          <div class="mystery-explanation">
+            <p><strong>Why it's mysterious:</strong> What does "beginning" mean? Was there time before time? How did something come from nothing?</p>
+            <div class="thinker-view">
+              <p><strong>Thinkers' perspectives:</strong> Augustine wrestled with time itself. Aquinas explored creation ex nihilo. Modern physics adds fascinating dimensions. Click to explore deep insights.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mystery-card" onclick="exploreMystery('Matthew 27:46')">
+          <h2>💔 The Cry of Abandonment</h2>
+          <div class="mystery-verse">"My God, my God, why hast thou forsaken me?" - Matthew 27:46</div>
+          <div class="mystery-explanation">
+            <p><strong>Why it's mysterious:</strong> How could God forsake God? Was this true abandonment or something deeper?</p>
+            <div class="thinker-view">
+              <p><strong>Thinkers' perspectives:</strong> Luther saw the depth of sin's weight. Calvin explored the mystery of substitution. Augustine found solidarity with human suffering. Click to explore.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mystery-card" onclick="exploreMystery('Job 1:21')">
+          <h2>⚡ The Mystery of Suffering</h2>
+          <div class="mystery-verse">"Naked came I out of my mother's womb, and naked shall I return thither: the LORD gave, and the LORD hath taken away; blessed be the name of the LORD." - Job 1:21</div>
+          <div class="mystery-explanation">
+            <p><strong>Why it's mysterious:</strong> Why does a good God allow suffering? How can Job bless God in his pain?</p>
+            <div class="thinker-view">
+              <p><strong>Thinkers' perspectives:</strong> The church fathers wrestled with theodicy. Modern thinkers add new dimensions. This mystery has fascinated scholars for millennia.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mystery-card" onclick="exploreMystery('Romans 9:15')">
+          <h2>🎯 The Mystery of Election</h2>
+          <div class="mystery-verse">"I will have mercy on whom I will have mercy" - Romans 9:15</div>
+          <div class="mystery-explanation">
+            <p><strong>Why it's mysterious:</strong> Divine sovereignty and human free will - how do they coexist?</p>
+            <div class="thinker-view">
+              <p><strong>Thinkers' perspectives:</strong> Augustine and Aquinas took different approaches. Luther and Calvin debated fiercely. Modern thinkers continue the dialogue.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mystery-card" onclick="exploreMystery('Revelation 13:18')">
+          <h2>🔢 The Number of the Beast</h2>
+          <div class="mystery-verse">"Let him that hath understanding count the number of the beast: for it is the number of a man; and his number is Six hundred threescore and six." - Revelation 13:18</div>
+          <div class="mystery-explanation">
+            <p><strong>Why it's mysterious:</strong> What does 666 represent? Is it literal, symbolic, or coded? Countless interpretations exist.</p>
+            <div class="thinker-view">
+              <p><strong>Thinkers' perspectives:</strong> Early church fathers offered various interpretations. Modern scholars explore gematria and historical context. The mystery endures.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="mystery-detail" style="display: none;">
+        <div class="card">
+          <button class="btn" onclick="showMysteries()" style="margin-bottom: 20px;">← Back to Mysteries</button>
+          <h2 id="detail-title"></h2>
+          <div id="detail-content"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>Bible Discovery - Exploring the mysteries that have fascinated thinkers for centuries</p>
+    </footer>
+
+    <script>
+      const apiBase = "/api";
+
+      async function exploreMystery(passage) {
+        document.getElementById("mysteries-container").style.display = "none";
+        document.getElementById("mystery-detail").style.display = "block";
+        
+        document.getElementById("detail-title").textContent = `Exploring: ${passage}`;
+        document.getElementById("detail-content").innerHTML = "<p>Loading insights from great thinkers...</p>";
+
+        try {
+          const response = await fetch(`${apiBase}/discover/${encodeURIComponent(passage)}`);
+          if (!response.ok) throw new Error("Failed to load");
+
+          const data = await response.json();
+          
+          let html = `<div class="mystery-verse" style="margin: 20px 0;">${passage}</div>`;
+          
+          // Add verse text if available
+          if (data.passage_text?.verses) {
+            html += `<div style="margin: 20px 0; padding: 20px; background: rgba(240, 247, 255, 0.5); border-radius: 12px;">`;
+            Object.entries(data.passage_text.verses).forEach(([v, t]) => {
+              html += `<div style="margin: 10px 0;"><strong>${v}</strong> ${t}</div>`;
+            });
+            html += `</div>`;
+          }
+
+          // Add Augustine
+          if (data.commentaries?.augustine) {
+            html += `
+              <div class="thinker-insight" style="margin: 25px 0; padding: 20px; background: rgba(102, 126, 234, 0.05); border-left: 4px solid #667eea; border-radius: 8px;">
+                <div style="font-weight: 600; color: #667eea; margin-bottom: 10px; font-size: 1.1em;">🌟 Saint Augustine</div>
+                <div>${data.commentaries.augustine}</div>
+              </div>
+            `;
+          }
+
+          // Add Aquinas
+          if (data.commentaries?.aquinas) {
+            html += `
+              <div class="thinker-insight" style="margin: 25px 0; padding: 20px; background: rgba(102, 126, 234, 0.05); border-left: 4px solid #667eea; border-radius: 8px;">
+                <div style="font-weight: 600; color: #667eea; margin-bottom: 10px; font-size: 1.1em;">🌟 Saint Thomas Aquinas</div>
+                <div>${data.commentaries.aquinas}</div>
+              </div>
+            `;
+          }
+
+          document.getElementById("detail-content").innerHTML = html;
+
+        } catch (error) {
+          document.getElementById("detail-content").innerHTML = `<p style="color: red;">Error loading mystery: ${error.message}</p>`;
+        }
+      }
+
+      function showMysteries() {
+        document.getElementById("mysteries-container").style.display = "block";
+        document.getElementById("mystery-detail").style.display = "none";
+      }
+
+      window.exploreMystery = exploreMystery;
+    </script>
+  </body>
+</html>

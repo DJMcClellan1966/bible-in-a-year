@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bible Discovery - Deep Exploration</title>
+    <title>Bible Discovery - Deep Exploration Mode</title>
     <link rel="stylesheet" href="styles.css" />
     <style>
       .discover-container {
@@ -103,63 +103,24 @@
     <header class="app-header">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <h1>Bible Discovery</h1>
-          <p>Deep exploration when you need it - Find meaning you'd never find on your own</p>
+          <h1>Bible Discovery Mode</h1>
+          <p>Deep exploration - Find meaning you'd never find on your own</p>
         </div>
         <button id="toggle-theme" class="btn" title="Toggle dark mode" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">🌙</button>
       </div>
-      <nav>
-        <a href="story-mode.html">📖 Story Mode</a>
-        <a href="character-bible.html">👁️ Character Bible</a>
-        <a href="exposition.html">📖 Exposition</a>
-        <a href="mystery.html">🔍 Mystery Tour</a>
-        <a href="thoughts.html">💭 Thoughts & Discourse</a>
-        <a href="persona.html">🤖 AI Conversations</a>
-        <a href="narrative.html">📚 All Stories</a>
-        <a href="characters.html">👤 Characters</a>
-        <a href="timeline.html">⏱️ Timeline</a>
-      </nav>
     </header>
 
     <main class="container">
       <div class="discover-container">
-        <!-- Aquinas Chatbot -->
-        <div class="card">
-          <h2>💬 Ask Aquinas</h2>
-          <p style="margin-bottom: 15px; color: #666;">Ask Saint Thomas Aquinas any question about the Bible, theology, or life's big questions</p>
-          <div class="chat-container">
-            <div id="aquinas-chat-messages" class="chat-messages">
-              <div class="chat-message message-assistant">
-                <strong>Aquinas:</strong> Greetings. I am Thomas Aquinas, Doctor Angelicus. How may I assist you with questions of faith, reason, or Scripture today?
-              </div>
-            </div>
-            <div class="chat-input-area">
-              <textarea id="aquinas-question" placeholder="Ask Aquinas a question... (e.g., 'What is the purpose of life?' or 'Explain Genesis 1')"></textarea>
-              <button class="btn" onclick="askAquinas()" style="align-self: flex-end;">Ask</button>
-            </div>
-          </div>
-        </div>
+        <a href="index.html" class="back-link">← Back to Traditional Reading</a>
         
         <div class="passage-input-area">
-          <h2>What mystery will you uncover today?</h2>
-          <p style="margin: 10px 0; color: #666; font-size: 1.05em; font-style: italic;">Every passage contains hidden connections, ancient wisdom, and meanings that have fascinated scholars for centuries.</p>
-          <p style="margin: 10px 0; color: #888; font-size: 0.95em;">No pressure, no schedule - just pick any passage that calls to you</p>
+          <h2>What passage would you like to explore?</h2>
+          <p style="margin: 10px 0; color: #666;">Enter any Bible reference (e.g., "Genesis 1", "Psalm 23", "John 3:16")</p>
           <div class="row">
             <input type="text" id="passage-input" placeholder="e.g., Genesis 1:1-5 or Romans 8" style="flex: 1; padding: 12px; font-size: 16px;" />
             <select id="discover-version" style="width: 150px; padding: 12px;"></select>
             <button id="discover-btn" class="btn" style="padding: 12px 24px; font-size: 16px;">Discover Deeply</button>
-          </div>
-          
-          <div style="margin-top: 20px; padding: 15px; background: rgba(74,144,226,0.1); border-radius: 8px;">
-            <strong style="display: block; margin-bottom: 10px;">🎯 Thematic Discovery Paths (Explore at your pace):</strong>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-              <button class="discovery-tab" onclick="startThematicPath('faith')" style="background: #fff; border-color: #28a745;">The Journey of Faith</button>
-              <button class="discovery-tab" onclick="startThematicPath('prophecy')" style="background: #fff; border-color: #ff9800;">Prophecy & Fulfillment</button>
-              <button class="discovery-tab" onclick="startThematicPath('parables')" style="background: #fff; border-color: #9c27b0;">The Parables Explained</button>
-              <button class="discovery-tab" onclick="startThematicPath('psalms')" style="background: #fff; border-color: #00bcd4;">Psalms for Today</button>
-              <button class="discovery-tab" onclick="startThematicPath('paul')" style="background: #fff; border-color: #f44336;">Paul's Theology</button>
-            </div>
-            <div id="thematic-path-info" style="margin-top: 10px; font-size: 0.9em; color: #666; display: none;"></div>
           </div>
           
           <div style="margin-top: 15px;">
@@ -170,6 +131,18 @@
             <button class="discovery-tab" onclick="loadPassage('Romans 8')" style="margin: 5px;">Romans 8</button>
             <button class="discovery-tab" onclick="loadPassage('1 Corinthians 13')" style="margin: 5px;">1 Cor 13</button>
           </div>
+          
+          <div style="margin-top: 20px; padding: 15px; background: rgba(74,144,226,0.1); border-radius: 8px;">
+            <strong style="display: block; margin-bottom: 10px;">🎯 Thematic Discovery Paths (No pressure - explore at your pace):</strong>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <button class="discovery-tab" onclick="startThematicPath('faith')" style="background: #fff; border-color: #28a745;">The Journey of Faith</button>
+              <button class="discovery-tab" onclick="startThematicPath('prophecy')" style="background: #fff; border-color: #ff9800;">Prophecy & Fulfillment</button>
+              <button class="discovery-tab" onclick="startThematicPath('parables')" style="background: #fff; border-color: #9c27b0;">The Parables Explained</button>
+              <button class="discovery-tab" onclick="startThematicPath('psalms')" style="background: #fff; border-color: #00bcd4;">Psalms for Today</button>
+              <button class="discovery-tab" onclick="startThematicPath('paul')" style="background: #fff; border-color: #f44336;">Paul's Theology</button>
+            </div>
+            <div id="thematic-path-info" style="margin-top: 10px; font-size: 0.9em; color: #666; display: none;"></div>
+          </div>
         </div>
 
         <div id="discovery-loading" style="display: none; text-align: center; padding: 40px;">
@@ -179,12 +152,8 @@
         <div id="discovery-results" style="display: none;">
           <!-- Passage Text -->
           <section class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-              <h2 id="result-passage-title"></h2>
-              <button id="toggle-modern-btn" class="btn" style="font-size: 14px; padding: 8px 16px;">✨ Modern Language</button>
-            </div>
+            <h2 id="result-passage-title"></h2>
             <div id="result-passage-text" class="content"></div>
-            <div id="modern-language-text" class="content" style="display: none; margin-top: 20px; padding: 20px; background: #f0f7ff; border-radius: 8px; border-left: 4px solid #4a90e2;"></div>
           </section>
 
           <!-- Deep Insights Tabs -->
@@ -228,12 +197,18 @@
             </section>
           </div>
 
+          <!-- Notes Section -->
+          <section class="card" style="margin-top: 30px;">
+            <h2>Your Discoveries & Notes</h2>
+            <textarea id="discovery-notes" rows="6" placeholder="Capture insights, questions, connections you're discovering..." style="width: 100%; padding: 10px;"></textarea>
+            <button id="save-discovery" class="btn" style="margin-top: 10px;">Save Insights</button>
+          </section>
         </div>
       </div>
     </main>
 
     <footer class="app-footer">
-      <p>Bible Discovery - Available when you need spiritual connection</p>
+      <p>Discovery Mode - No pressure, just deep exploration</p>
     </footer>
 
     <script>
@@ -355,9 +330,6 @@
         if (e.key === "Enter") discoverPassage();
       });
 
-      // Cache for faster loading
-      const passageCache = new Map();
-      
       async function discoverPassage() {
         const passage = document.getElementById("passage-input").value.trim();
         if (!passage) {
@@ -367,13 +339,6 @@
 
         currentPassage = passage;
         const version = document.getElementById("discover-version").value;
-        
-        // Check cache first (instant load if available)
-        const cacheKey = `${passage}-${version}`;
-        if (passageCache.has(cacheKey)) {
-          displayDiscoveryResults(passageCache.get(cacheKey));
-          return;
-        }
         
         document.getElementById("discovery-loading").style.display = "block";
         document.getElementById("discovery-results").style.display = "none";
@@ -412,54 +377,6 @@
           document.getElementById("result-passage-text").innerHTML = versesHtml;
         } else {
           document.getElementById("result-passage-text").textContent = "Passage text not available";
-        }
-        
-        // Set up modern language toggle
-        const modernBtn = document.getElementById("toggle-modern-btn");
-        let modernLanguageLoaded = false;
-        if (modernBtn) {
-          modernBtn.onclick = async () => {
-            const modernDiv = document.getElementById("modern-language-text");
-            if (modernDiv.style.display === "none") {
-              if (!modernLanguageLoaded) {
-                modernDiv.innerHTML = "<p>Generating modern language explanation...</p>";
-                modernDiv.style.display = "block";
-                try {
-                  const originalText = passageText && passageText.verses 
-                    ? Object.entries(passageText.verses).map(([v, t]) => `${v}: ${t}`).join("\n")
-                    : null;
-                  
-                  const response = await fetch(`${apiBase}/bible/modern-language`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      passage: data.passage,
-                      original_text: originalText
-                    })
-                  });
-                  
-                  if (response.ok) {
-                    const modernData = await response.json();
-                    modernDiv.innerHTML = `
-                      <h3 style="color: #4a90e2; margin-bottom: 15px;">✨ Modern Language</h3>
-                      <div style="line-height: 1.8; white-space: pre-wrap;">${modernData.modern}</div>
-                    `;
-                    modernLanguageLoaded = true;
-                  } else {
-                    modernDiv.innerHTML = "<p style='color: #999;'>Modern language not available. Make sure Ollama is running.</p>";
-                  }
-                } catch (error) {
-                  modernDiv.innerHTML = `<p style='color: #999;'>Error: ${error.message}</p>`;
-                }
-              } else {
-                modernDiv.style.display = "block";
-              }
-              modernBtn.textContent = "Hide Modern";
-            } else {
-              modernDiv.style.display = "none";
-              modernBtn.textContent = "✨ Modern Language";
-            }
-          };
         }
 
         // Commentaries
@@ -622,165 +539,6 @@
 
       // Load versions on page load
       loadVersions();
-      
-      // Load today's story - like opening a history book
-      async function loadTodaysStory() {
-        try {
-          const response = await fetch(`${apiBase}/narrative/stories`);
-          if (!response.ok) return;
-          
-          const data = await response.json();
-          const stories = data.stories || [];
-          if (stories.length === 0) return;
-          
-          // Pick a story based on day of year (cycles through stories)
-          const today = new Date();
-          const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-          const storyIndex = dayOfYear % stories.length;
-          const story = stories[storyIndex];
-          
-          const storySection = document.getElementById("todays-story-content");
-          storySection.innerHTML = `
-            <h3 style="color: white; margin-bottom: 10px; font-size: 22px;">${story.name}</h3>
-            <p style="color: rgba(255,255,255,0.9); margin-bottom: 15px; line-height: 1.6;">${story.description}</p>
-            <div style="color: rgba(255,255,255,0.8); font-size: 0.9em;">
-              <span>📚 ${story.passage_count} passages</span> 
-              <span style="margin-left: 15px;">⏱️ Read like a chapter in a history book</span>
-            </div>
-          `;
-          
-          // Set button to load this story
-          const loadBtn = document.getElementById("load-story-btn");
-          if (loadBtn) {
-            loadBtn.onclick = () => {
-              window.location.href = `narrative.html?story=${story.id}`;
-            };
-          }
-        } catch (error) {
-          console.error("Error loading story:", error);
-        }
-      }
-      
-      // Load story on page load (non-blocking)
-      loadTodaysStory();
-      
-      // Load daily discovery - something fascinating every day
-      let currentDiscovery = null;
-      
-      async function loadDailyDiscovery() {
-        try {
-          const response = await fetch(`${apiBase}/discovery/today?generate=true`);
-          if (!response.ok) {
-            document.getElementById("daily-discovery-content").innerHTML = 
-              "<p style='color: rgba(255,255,255,0.7);'>Discovery coming soon...</p>";
-            return;
-          }
-          
-          const discovery = await response.json();
-          currentDiscovery = discovery;
-          
-          const discoverySection = document.getElementById("daily-discovery-content");
-          discoverySection.innerHTML = `
-            <h3 style="color: white; margin-bottom: 10px; font-size: 18px; font-weight: 600;">${discovery.title}</h3>
-            <p style="color: rgba(255,255,255,0.95); line-height: 1.6; margin-bottom: 12px;">${discovery.discovery_text.substring(0, 200)}${discovery.discovery_text.length > 200 ? '...' : ''}</p>
-            <div style="color: rgba(255,255,255,0.8); font-size: 0.9em;">
-              <strong>📖 ${discovery.passage}</strong>
-            </div>
-          `;
-        } catch (error) {
-          console.error("Error loading discovery:", error);
-          document.getElementById("daily-discovery-content").innerHTML = 
-            "<p style='color: rgba(255,255,255,0.7);'>Discovery loading...</p>";
-        }
-      }
-      
-      window.exploreDiscovery = function() {
-        if (currentDiscovery && currentDiscovery.passage) {
-          document.getElementById("passage-input").value = currentDiscovery.passage;
-          document.getElementById("passage-input").scrollIntoView({ behavior: 'smooth', block: 'center' });
-          // Auto-trigger discovery after a moment
-          setTimeout(() => {
-            document.getElementById("discover-btn").click();
-          }, 300);
-        }
-      };
-      
-      // Load discovery on page load (fast, no waiting)
-      loadDailyDiscovery();
-
-      // Aquinas Chatbot
-      let aquinasConversationId = null;
-
-      async function askAquinas() {
-        const questionInput = document.getElementById("aquinas-question");
-        const question = questionInput.value.trim();
-        
-        if (!question) {
-          alert("Please enter a question");
-          return;
-        }
-
-        const chatMessages = document.getElementById("aquinas-chat-messages");
-        
-        // Add user message
-        chatMessages.innerHTML += `
-          <div class="chat-message message-user">
-            <strong>You:</strong> ${question}
-          </div>
-        `;
-        
-        questionInput.value = "";
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        // Show thinking indicator
-        const thinkingId = Date.now();
-        chatMessages.innerHTML += `
-          <div class="chat-message message-assistant" id="thinking-${thinkingId}">
-            <strong>Aquinas:</strong> <em>Thinking...</em>
-          </div>
-        `;
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        try {
-          const response = await fetch(`${apiBase}/persona/chat`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              persona: "aquinas",
-              message: question,
-              conversation_id: aquinasConversationId
-            })
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            aquinasConversationId = data.conversation_id;
-            
-            // Replace thinking with response
-            document.getElementById(`thinking-${thinkingId}`).innerHTML = `
-              <strong>Aquinas:</strong> ${data.response || "I appreciate your question. Let me share my perspective..."}
-            `;
-          } else {
-            throw new Error("Failed to get response");
-          }
-        } catch (error) {
-          document.getElementById(`thinking-${thinkingId}`).innerHTML = `
-            <strong>Aquinas:</strong> I apologize, but I'm having difficulty responding at the moment. Please try again, or consider rephrasing your question.
-          `;
-        }
-
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-      }
-
-      // Allow Enter key to send (Shift+Enter for new line)
-      document.getElementById("aquinas-question").addEventListener("keypress", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          askAquinas();
-        }
-      });
-
-      window.askAquinas = askAquinas;
     </script>
   </body>
 </html>

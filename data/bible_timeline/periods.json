@@ -1,0 +1,97 @@
+[
+  {
+    "period_id": "creation_period",
+    "name": "Creation to Flood",
+    "start_date": -4000,
+    "end_date": -2500,
+    "description": "From creation through the flood",
+    "key_events": [
+      "creation",
+      "fall",
+      "flood"
+    ],
+    "themes": [
+      "Creation",
+      "Sin",
+      "Judgment",
+      "Preservation"
+    ]
+  },
+  {
+    "period_id": "patriarch_period",
+    "name": "Patriarchs",
+    "start_date": -2000,
+    "end_date": -1500,
+    "description": "Age of the patriarchs: Abraham, Isaac, Jacob, Joseph",
+    "key_events": [
+      "abraham_call"
+    ],
+    "themes": [
+      "Covenant",
+      "Promise",
+      "Faith"
+    ]
+  },
+  {
+    "period_id": "exodus_period",
+    "name": "Exodus and Law",
+    "start_date": -1500,
+    "end_date": -1000,
+    "description": "Exodus from Egypt and giving of the Law",
+    "key_events": [
+      "exodus"
+    ],
+    "themes": [
+      "Deliverance",
+      "Law",
+      "Covenant"
+    ]
+  },
+  {
+    "period_id": "kingdom_period",
+    "name": "Kingdom of Israel",
+    "start_date": -1000,
+    "end_date": -586,
+    "description": "United and divided kingdoms",
+    "key_events": [
+      "david_king",
+      "exile"
+    ],
+    "themes": [
+      "Kingship",
+      "Covenant",
+      "Prophecy"
+    ]
+  },
+  {
+    "period_id": "gospel_period",
+    "name": "Life of Christ",
+    "start_date": -4,
+    "end_date": 30,
+    "description": "Birth, ministry, death, and resurrection of Jesus",
+    "key_events": [
+      "jesus_birth",
+      "jesus_crucifixion"
+    ],
+    "themes": [
+      "Incarnation",
+      "Atonement",
+      "Resurrection"
+    ]
+  },
+  {
+    "period_id": "church_period",
+    "name": "Early Church",
+    "start_date": 30,
+    "end_date": 100,
+    "description": "Birth and growth of the early Church",
+    "key_events": [
+      "pentecost"
+    ],
+    "themes": [
+      "Holy Spirit",
+      "Mission",
+      "Growth"
+    ]
+  }
+]

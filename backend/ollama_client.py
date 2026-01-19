@@ -15,7 +15,10 @@ class OllamaClient:
     def __init__(self) -> None:
         self.local_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         self.remote_url = os.getenv("OLLAMA_REMOTE_URL")
+        # Allow different models for different tasks
         self.default_model = os.getenv("OLLAMA_MODEL", "llama2:7b")
+        self.fast_model = os.getenv("OLLAMA_FAST_MODEL", "llama3.2:1b")  # Faster model for quick tasks
+        self.quality_model = os.getenv("OLLAMA_QUALITY_MODEL", "llama2:7b")  # Higher quality for complex tasks
 
     def generate_commentary(
         self,
@@ -51,43 +54,95 @@ class OllamaClient:
         
         if personalized:
             prompt += "\n\nOffer pastoral guidance tailored to a daily spiritual journey."
-        return self._generate(prompt, system_prompt, model=self.default_model)
+        
+        # Use quality model for commentaries (important content)
+        return self._generate(prompt, system_prompt, model=self.quality_model)
 
-    def generate_answer(
+    def generate_modern_language_explanation(
         self,
-        question: str,
-        context: List[Dict[str, Any]],
-        helper: str,
-        additional_context: Optional[str] = None,
+        passage: str,
+        passage_text: str
     ) -> str:
-        system_prompt = self._system_prompt(helper)
-        context_text = self._format_context(context)
-        if additional_context:
-            context_text += f"\n\nAdditional context: {additional_context}"
-        prompt = (
-            f"A seeker asks: \"{question}\"\n\n{context_text}\n\n"
-            "Provide a thoughtful, spiritually nourishing answer."
-        )
-        return self._generate(prompt, system_prompt, model=self.default_model)
+        """Generate modern language explanation - can use faster model."""
+        prompt = f"""Explain this Bible passage in modern, everyday language:
 
-    def _generate(self, prompt: str, system: str, model: str) -> str:
+PASSAGE: {passage}
+
+TEXT:
+{passage_text}
+
+Provide:
+1. A clear, modern paraphrase
+2. Explanation of any archaic terms or cultural references
+3. What this passage means in today's context
+
+Write in simple, accessible language that anyone can understand."""
+        
+        system = "You are a Bible teacher who explains Scripture in clear, modern language."
+        
+        # Use fast model for simple explanations
+        return self._generate(prompt, system, model=self.fast_model)
+
+    def _generate(
+        self,
+        prompt: str,
+        system: str,
+        model: Optional[str] = None,
+        num_predict: int = 1500,
+    ) -> str:
+        """Generate text using Ollama."""
+        if model is None:
+            model = self.default_model
+        
         payload = {
             "model": model,
-            "system": system,
             "prompt": prompt,
+            "system": system,
             "stream": False,
             "options": {
+                "num_predict": num_predict,
                 "temperature": 0.7,
-                "top_p": 0.9,
-                "num_predict": 1500,  # Allow longer commentary (about 1500 tokens = ~2000 words)
             },
         }
-
+        
         response = self._post("/api/generate", payload)
-        return response.get("response", "Unable to generate a response at this time.")
+        return response.get("response", "")
+
+    def _format_context(self, context: List[Dict[str, Any]]) -> str:
+        """Format RAG context for prompts."""
+        if not context:
+            return ""
+        
+        texts = []
+        for item in context[:3]:  # Limit to 3 snippets for speed
+            snippet = item.get("text", "")[:400]  # Shorter snippets
+            if snippet:
+                texts.append(f"- {snippet}")
+        
+        if texts:
+            return "Relevant context from writings:\n" + "\n".join(texts)
+        return ""
+
+    def _system_prompt(self, helper: str) -> str:
+        """Get system prompt for a helper."""
+        prompts = {
+            "augustine": (
+                "You are Saint Augustine of Hippo, Bishop and Doctor of the Church. "
+                "Write commentary in your characteristic style: profound, reflective, "
+                "spiritually rich, drawing from your theological insights on grace, "
+                "predestination, original sin, and the relationship between faith and reason."
+            ),
+            "aquinas": (
+                "You are Saint Thomas Aquinas, Doctor Angelicus. Write commentary with "
+                "clarity, systematic thought, and logical structure. Emphasize natural "
+                "theology, the harmony of faith and reason, and provide clear, accessible "
+                "explanations of complex theological concepts."
+            ),
+        }
+        return prompts.get(helper, "You are a biblical scholar providing insightful commentary.")
 
     def _post(self, endpoint: str, payload: Dict[str, Any], max_retries: int = 3) -> Dict[str, Any]:
-        """Post to Ollama with retry logic for transient failures."""
+
         for attempt in range(max_retries):
             try:
                 url = f"{self.local_url}{endpoint}"
@@ -117,45 +172,10 @@ class OllamaClient:
                     response = requests.post(f"{self.remote_url}{endpoint}", json=payload, timeout=180)
                     response.raise_for_status()
                     return response.json()
-                except Exception as exc:
+                except Exception as e:
                     if attempt < max_retries - 1:
                         time.sleep(5 * (attempt + 1))
                         continue
-                    return {"response": f"Both local and remote Ollama failed. Local: {error_msg}. Remote: {exc}"}
+                    error_msg = f"Ollama remote request also failed: {type(e).__name__}: {e}"
 
-        return {"response": error_msg}
-
-    def _format_context(self, context: List[Dict[str, Any]]) -> str:
-        if not context:
-            return ""
-        lines = []
-        for item in context[:2]:  # Reduced from 3 to 2 for faster generation
-            snippet = item.get("text", "")
-            if len(snippet) > 200:  # Reduced from 280
-                snippet = snippet[:200] + "..."
-            lines.append(f"- {snippet}")
-        return "Drawing from these teachings:\n" + "\n".join(lines)
-
-    def _system_prompt(self, helper: str) -> str:
-        if helper == "aquinas":
-            return (
-                "You are Saint Thomas Aquinas. Respond with clarity and reason, "
-                "grounded in Scripture and theology. Be systematic, pastoral, and concise."
-            )
-        if helper == "combined":
-            return (
-                "You provide combined wisdom from Saints Augustine and Aquinas, "
-                "blending spiritual depth with clear reasoning."
-            )
-        # Enhanced system prompt for Augustine emphasizing his style and interpretive approach
-        return (
-            "You are Saint Augustine of Hippo, Bishop and Doctor of the Church. "
-            "You write in your characteristic style: deeply reflective, theologically profound, "
-            "and spiritually enriching. Your commentaries reveal the hidden meanings in Scripture, "
-            "connecting texts to the greater narrative of salvation history. You draw from your "
-            "intimate knowledge of your own writings (Confessions, City of God, On Christian Doctrine, "
-            "and your many commentaries on Scripture) to provide fresh, original insights. "
-            "Your interpretations are never mere repetition but always illuminate deeper truths, "
-            "encouraging the reader toward greater understanding and spiritual growth. Write with "
-            "the passion and depth that marks your theological legacy."
-        )
+        raise RuntimeError(error_msg)

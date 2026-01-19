@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exposition - Church Fathers & Modern Thinkers</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .exposition-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin: 30px 0;
+      }
+      @media (max-width: 968px) {
+        .exposition-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+      .verse-panel {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      body.dark-mode .verse-panel {
+        background: rgba(30, 30, 50, 0.95);
+      }
+      .exposition-panel {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        max-height: 800px;
+        overflow-y: auto;
+      }
+      body.dark-mode .exposition-panel {
+        background: rgba(30, 30, 50, 0.95);
+      }
+      .verse-display {
+        font-size: 1.3em;
+        line-height: 2;
+        margin: 20px 0;
+        padding: 20px;
+        background: rgba(240, 247, 255, 0.5);
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+      }
+      body.dark-mode .verse-display {
+        background: rgba(40, 40, 60, 0.5);
+      }
+      .thinker-insight {
+        margin: 20px 0;
+        padding: 20px;
+        background: rgba(102, 126, 234, 0.05);
+        border-left: 4px solid #667eea;
+        border-radius: 8px;
+      }
+      .thinker-name {
+        font-weight: 600;
+        color: #667eea;
+        margin-bottom: 8px;
+        font-size: 1.1em;
+      }
+      body.dark-mode .thinker-name {
+        color: #8b9eff;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>📖 Exposition</h1>
+      <p>Deep insights from church fathers and modern thinkers</p>
+      <nav>
+        <a href="index.html">Discovery</a>
+        <a href="mystery.html">Mystery Tour</a>
+        <a href="thoughts.html">Thoughts & Discourse</a>
+        <a href="persona.html">AI Conversations</a>
+        <a href="narrative.html">Stories</a>
+        <a href="characters.html">Characters</a>
+        <a href="timeline.html">Timeline</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div style="margin-bottom: 30px;">
+        <h2>Select a Passage</h2>
+        <div class="row" style="margin-top: 15px;">
+          <input type="text" id="passage-input" placeholder="e.g., Genesis 1" style="flex: 1; padding: 14px; font-size: 16px;" />
+          <button id="load-exposition-btn" class="btn" style="padding: 14px 28px;">Load Exposition</button>
+        </div>
+        <div style="margin-top: 15px;">
+          <strong>Quick picks:</strong>
+          <button class="discovery-tab" onclick="loadPassage('Genesis 1')" style="margin: 5px;">Genesis 1</button>
+          <button class="discovery-tab" onclick="loadPassage('John 3:16-21')" style="margin: 5px;">John 3:16</button>
+          <button class="discovery-tab" onclick="loadPassage('Romans 8')" style="margin: 5px;">Romans 8</button>
+          <button class="discovery-tab" onclick="loadPassage('1 Corinthians 13')" style="margin: 5px;">1 Cor 13</button>
+        </div>
+      </div>
+
+      <div id="exposition-content" style="display: none;">
+        <div class="exposition-layout">
+          <div class="verse-panel">
+            <h3 id="verse-title">Passage</h3>
+            <div id="verse-display" class="verse-display"></div>
+          </div>
+          
+          <div class="exposition-panel">
+            <h3>Exposition from Great Thinkers</h3>
+            <div id="exposition-text"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="loading" style="text-align: center; padding: 40px; display: none;">
+        <p>Gathering insights from Augustine, Aquinas, Luther, Calvin, Lewis, and modern scholars...</p>
+      </div>
+    </main>
+
+    <footer>
+      <p>Bible Discovery - Deep exploration with church fathers and modern thinkers</p>
+    </footer>
+
+    <script>
+      const apiBase = "/api";
+
+      async function loadPassage(passage) {
+        document.getElementById("passage-input").value = passage;
+        await loadExposition();
+      }
+
+      window.loadPassage = loadPassage;
+
+      async function loadExposition() {
+        const passage = document.getElementById("passage-input").value.trim();
+        if (!passage) {
+          alert("Please enter a passage reference");
+          return;
+        }
+
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("exposition-content").style.display = "none";
+
+        try {
+          // Get passage text
+          const passageResponse = await fetch(`${apiBase}/bible/text/${encodeURIComponent(passage)}`);
+          let passageText = {};
+          if (passageResponse.ok) {
+            passageText = await passageResponse.json();
+          }
+
+          // Get insights from great thinkers using discovery endpoint
+          const discoveryResponse = await fetch(`${apiBase}/discover/${encodeURIComponent(passage)}`);
+          if (!discoveryResponse.ok) throw new Error("Failed to get insights");
+
+          const discovery = await discoveryResponse.json();
+
+          // Display verse
+          const verseDisplay = document.getElementById("verse-display");
+          document.getElementById("verse-title").textContent = passage;
+          
+          // Use passage_text from discovery response
+          const verses = discovery.passage_text?.verses || {};
+          if (Object.keys(verses).length > 0) {
+            const versesHtml = Object.entries(verses)
+              .map(([v, t]) => `<div><strong>${v}</strong> ${t}</div>`)
+              .join("");
+            verseDisplay.innerHTML = versesHtml;
+          } else {
+            verseDisplay.innerHTML = `<p><em>Enter a passage reference above to see the text</em></p>`;
+          }
+
+          // Build exposition from commentaries
+          const exposition = document.getElementById("exposition-text");
+          let expositionHtml = "";
+
+          // Augustine
+          if (discovery.commentaries?.augustine) {
+            expositionHtml += `
+              <div class="thinker-insight">
+                <div class="thinker-name">🌟 Saint Augustine (Early Church Father, 4th-5th century)</div>
+                <div>${discovery.commentaries.augustine}</div>
+              </div>
+            `;
+          }
+
+          // Aquinas
+          if (discovery.commentaries?.aquinas) {
+            expositionHtml += `
+              <div class="thinker-insight">
+                <div class="thinker-name">🌟 Saint Thomas Aquinas (Scholastic, 13th century)</div>
+                <div>${discovery.commentaries.aquinas}</div>
+              </div>
+            `;
+          }
+
+          // If no commentaries, use combined insights
+          if (!expositionHtml && discovery.insights) {
+            expositionHtml = `
+              <div class="thinker-insight">
+                <div class="thinker-name">💡 Insights from Multiple Perspectives</div>
+                <div>Analyzing connections and meanings from various theological traditions...</div>
+              </div>
+            `;
+          }
+
+          if (!expositionHtml) {
+            expositionHtml = `
+              <div class="thinker-insight">
+                <div class="thinker-name">📚 Gathering Insights</div>
+                <div>Loading commentary from church fathers and modern thinkers...</div>
+              </div>
+            `;
+          }
+
+          exposition.innerHTML = expositionHtml;
+
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("exposition-content").style.display = "block";
+          document.getElementById("exposition-content").scrollIntoView({ behavior: 'smooth' });
+
+        } catch (error) {
+          document.getElementById("loading").innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        }
+      }
+
+      document.getElementById("load-exposition-btn").addEventListener("click", loadExposition);
+      document.getElementById("passage-input").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") loadExposition();
+      });
+    </script>
+  </body>
+</html>

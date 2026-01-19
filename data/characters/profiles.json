@@ -1,0 +1,298 @@
+[
+  {
+    "character_id": "abraham",
+    "name": "Abraham",
+    "alternate_names": [
+      "Abram"
+    ],
+    "description": "The father of faith, called by God to leave his homeland and become the father of many nations.",
+    "category": "patriarch",
+    "key_passages": [
+      "Genesis 12",
+      "Genesis 15",
+      "Genesis 17",
+      "Genesis 22",
+      "Romans 4",
+      "Hebrews 11"
+    ],
+    "first_appearance": "Genesis 11:26",
+    "last_appearance": "Genesis 25:10",
+    "timeline_period": "2000-1800 BC",
+    "significance": "Foundational covenant figure, model of faith",
+    "traits": [
+      "Faithful",
+      "Obedient",
+      "Trusting",
+      "Hospitable",
+      "Intercessory"
+    ],
+    "character_arc": "Journey from idolatry to faith, from doubt to trust, from fear to obedience",
+    "key_relationships": [
+      {
+        "character": "Sarah",
+        "relationship": "husband-wife",
+        "description": "Partner in the covenant promise"
+      },
+      {
+        "character": "Isaac",
+        "relationship": "father-son",
+        "description": "Covenant heir, offered in sacrifice"
+      },
+      {
+        "character": "God",
+        "relationship": "covenant",
+        "description": "Covenant relationship based on faith"
+      }
+    ],
+    "themes": [
+      "Faith",
+      "Covenant",
+      "Promise",
+      "Sacrifice",
+      "Obedience"
+    ],
+    "lessons": [
+      "Trust God's promises even when they seem impossible",
+      "Obedience requires faith",
+      "God provides"
+    ]
+  },
+  {
+    "character_id": "moses",
+    "name": "Moses",
+    "alternate_names": [],
+    "description": "The deliverer of Israel, prophet, lawgiver, and mediator between God and His people.",
+    "category": "prophet",
+    "key_passages": [
+      "Exodus 2-4",
+      "Exodus 14",
+      "Exodus 20",
+      "Exodus 32-34",
+      "Numbers 12",
+      "Deuteronomy 34"
+    ],
+    "first_appearance": "Exodus 2:1",
+    "last_appearance": "Deuteronomy 34:12",
+    "timeline_period": "1526-1406 BC",
+    "significance": "Deliverer, prophet, lawgiver, type of Christ",
+    "traits": [
+      "Humble",
+      "Reluctant leader",
+      "Intercessor",
+      "Faithful",
+      "Patient"
+    ],
+    "character_arc": "From prince to shepherd to deliverer, from anger to patience, from doubt to confidence",
+    "key_relationships": [
+      {
+        "character": "Aaron",
+        "relationship": "brother-partner",
+        "description": "Brother and spokesman"
+      },
+      {
+        "character": "Pharaoh",
+        "relationship": "adversary",
+        "description": "Opponent in deliverance"
+      },
+      {
+        "character": "Israelites",
+        "relationship": "leader-people",
+        "description": "Guided through wilderness"
+      }
+    ],
+    "themes": [
+      "Deliverance",
+      "Law",
+      "Covenant",
+      "Mediation",
+      "Faithfulness"
+    ],
+    "lessons": [
+      "God equips those He calls",
+      "Leadership requires patience and intercession",
+      "Obedience matters more than ability"
+    ]
+  },
+  {
+    "character_id": "david",
+    "name": "David",
+    "alternate_names": [],
+    "description": "The shepherd-king, man after God's own heart, warrior, poet, and ancestor of Christ.",
+    "category": "king",
+    "key_passages": [
+      "1 Samuel 16",
+      "1 Samuel 17",
+      "2 Samuel 11-12",
+      "2 Samuel 22",
+      "Psalm 51",
+      "Acts 13:22"
+    ],
+    "first_appearance": "1 Samuel 16:1",
+    "last_appearance": "1 Kings 2:11",
+    "timeline_period": "1040-970 BC",
+    "significance": "Anointed king, covenant recipient, ancestor of Christ, model of repentance",
+    "traits": [
+      "Courageous",
+      "Passionate",
+      "Repentant",
+      "Worshiper",
+      "Warrior"
+    ],
+    "character_arc": "From shepherd to king, from innocence to sin to repentance, from warrior to worshiper",
+    "key_relationships": [
+      {
+        "character": "Jonathan",
+        "relationship": "friendship",
+        "description": "Deep friendship"
+      },
+      {
+        "character": "Saul",
+        "relationship": "adversary-king",
+        "description": "Persecuted by jealous king"
+      },
+      {
+        "character": "Bathsheba",
+        "relationship": "marriage",
+        "description": "Restored relationship after sin"
+      }
+    ],
+    "themes": [
+      "Covenant",
+      "Repentance",
+      "Worship",
+      "Kingship",
+      "Redemption"
+    ],
+    "lessons": [
+      "Even great leaders sin, but true repentance restores",
+      "God sees the heart",
+      "Worship in all circumstances"
+    ]
+  },
+  {
+    "character_id": "jesus",
+    "name": "Jesus Christ",
+    "alternate_names": [
+      "Yeshua",
+      "Messiah",
+      "Christ",
+      "Son of God",
+      "Son of Man"
+    ],
+    "description": "The Son of God, Savior, Messiah, fully God and fully man, the central figure of Christianity.",
+    "category": "messiah",
+    "key_passages": [
+      "Matthew 1-28",
+      "Mark 1-16",
+      "Luke 1-24",
+      "John 1-21",
+      "Philippians 2",
+      "Colossians 1"
+    ],
+    "first_appearance": "Matthew 1:1",
+    "last_appearance": "Revelation 22:20",
+    "timeline_period": "4 BC - 30 AD",
+    "significance": "Savior, Redeemer, Son of God, fulfillment of prophecy",
+    "traits": [
+      "Compassionate",
+      "Just",
+      "Humble",
+      "Obedient",
+      "Sacrificial",
+      "Loving"
+    ],
+    "character_arc": "From incarnation to ministry to crucifixion to resurrection to ascension",
+    "key_relationships": [
+      {
+        "character": "God the Father",
+        "relationship": "father-son",
+        "description": "Eternal relationship"
+      },
+      {
+        "character": "Disciples",
+        "relationship": "teacher-students",
+        "description": "Taught and commissioned"
+      },
+      {
+        "character": "Humanity",
+        "relationship": "savior-saved",
+        "description": "Came to save the lost"
+      }
+    ],
+    "themes": [
+      "Salvation",
+      "Love",
+      "Sacrifice",
+      "Obedience",
+      "Kingdom",
+      "Redemption"
+    ],
+    "lessons": [
+      "Love God and neighbor",
+      "Serve rather than be served",
+      "Obedience to God's will",
+      "Forgiveness"
+    ]
+  },
+  {
+    "character_id": "paul",
+    "name": "Paul",
+    "alternate_names": [
+      "Saul of Tarsus"
+    ],
+    "description": "Apostle to the Gentiles, transformed persecutor, theologian, church planter, and writer of much of the New Testament.",
+    "category": "apostle",
+    "key_passages": [
+      "Acts 9",
+      "Acts 13-28",
+      "Romans",
+      "1 Corinthians 15",
+      "Galatians 1-2",
+      "Philippians 3"
+    ],
+    "first_appearance": "Acts 7:58",
+    "last_appearance": "2 Timothy 4:22",
+    "timeline_period": "5-67 AD",
+    "significance": "Apostle to Gentiles, theologian, church planter, example of transformation",
+    "traits": [
+      "Zealous",
+      "Transformed",
+      "Persevering",
+      "Scholarly",
+      "Passionate",
+      "Humble"
+    ],
+    "character_arc": "From persecutor to persecuted, from legalist to grace preacher, from self-righteous to Christ-dependent",
+    "key_relationships": [
+      {
+        "character": "Barnabas",
+        "relationship": "partnership",
+        "description": "Early ministry partner"
+      },
+      {
+        "character": "Timothy",
+        "relationship": "mentor-disciple",
+        "description": "Spiritual son"
+      },
+      {
+        "character": "Peter",
+        "relationship": "colleague",
+        "description": "Apostolic partnership"
+      }
+    ],
+    "themes": [
+      "Grace",
+      "Transformation",
+      "Mission",
+      "Suffering",
+      "Gospel",
+      "Unity"
+    ],
+    "lessons": [
+      "God can transform anyone",
+      "Grace is greater than works",
+      "Suffering for Christ is honor",
+      "Unity in diversity"
+    ]
+  }
+]

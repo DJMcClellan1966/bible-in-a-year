@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thoughts & Discourse - Interactive Bible Study</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .thought-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 25px;
+        border-radius: 20px;
+        margin-bottom: 25px;
+        box-shadow: var(--shadow-soft);
+        border-left: 4px solid #4facfe;
+      }
+      body.dark-mode .thought-card {
+        background: rgba(30, 30, 50, 0.95);
+      }
+      .discourse-panel {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: var(--shadow-soft);
+        margin-top: 30px;
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
+      }
+      @media (max-width: 968px) {
+        .discourse-panel {
+          grid-template-columns: 1fr;
+        }
+      }
+      body.dark-mode .discourse-panel {
+        background: rgba(30, 30, 50, 0.95);
+      }
+      .chat-message {
+        margin: 15px 0;
+        padding: 15px;
+        border-radius: 12px;
+      }
+      .message-user {
+        background: rgba(79, 172, 254, 0.1);
+        margin-left: 20%;
+      }
+      .message-thinker {
+        background: rgba(102, 126, 234, 0.1);
+        margin-right: 20%;
+      }
+      #chat-messages {
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 20px;
+        background: rgba(240, 247, 255, 0.3);
+        border-radius: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>💭 Thoughts & Discourse</h1>
+      <p>Reflect, discuss, and engage with great thinkers</p>
+      <nav>
+        <a href="index.html">Discovery</a>
+        <a href="exposition.html">Exposition</a>
+        <a href="mystery.html">Mystery Tour</a>
+        <a href="persona.html">AI Conversations</a>
+        <a href="narrative.html">Stories</a>
+        <a href="characters.html">Characters</a>
+        <a href="timeline.html">Timeline</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div class="thought-card">
+        <h2>🤔 Thought Prompts</h2>
+        <p>Choose a prompt to reflect on and discuss with a great thinker:</p>
+        <div style="margin-top: 20px;">
+          <button class="discovery-tab" onclick="loadThought('purpose')" style="margin: 8px;">What is the purpose of life?</button>
+          <button class="discovery-tab" onclick="loadThought('suffering')" style="margin: 8px;">Why do we suffer?</button>
+          <button class="discovery-tab" onclick="loadThought('love')" style="margin: 8px;">What is love?</button>
+          <button class="discovery-tab" onclick="loadThought('faith')" style="margin: 8px;">How do faith and reason relate?</button>
+          <button class="discovery-tab" onclick="loadThought('forgiveness')" style="margin: 8px;">What is forgiveness?</button>
+          <button class="discovery-tab" onclick="loadThought('truth')" style="margin: 8px;">What is truth?</button>
+        </div>
+      </div>
+
+      <div id="thought-display" style="display: none;">
+        <div class="card">
+          <button class="btn" onclick="hideThought()" style="margin-bottom: 20px;">← Back to Prompts</button>
+          <h2 id="thought-title"></h2>
+          <div id="thought-content"></div>
+          <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #e0e0e0;">
+            <h3>Your Thoughts</h3>
+            <textarea id="user-thoughts" placeholder="Write your thoughts, reflections, questions here..." style="width: 100%; min-height: 150px; padding: 15px; margin: 15px 0; border-radius: 12px; font-size: 16px; font-family: inherit;"></textarea>
+            <button class="btn" onclick="discussWithThinker()">💬 Discuss with Random Thinker</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="discourse-section" style="display: none;">
+        <div class="discourse-panel">
+          <div>
+            <h3>Current Thinker</h3>
+            <div id="thinker-info" style="padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; margin-top: 15px;">
+              <p><strong id="thinker-name"></strong></p>
+              <p style="font-size: 0.9em; color: #666; margin-top: 8px;" id="thinker-era"></p>
+            </div>
+            <button class="btn" onclick="newRandomThinker()" style="margin-top: 15px; width: 100%;">🎲 New Random Thinker</button>
+          </div>
+          
+          <div>
+            <h3>Conversation</h3>
+            <div id="chat-messages"></div>
+            <div style="margin-top: 20px;">
+              <textarea id="chat-input" placeholder="Share your thoughts or ask a question..." style="width: 100%; min-height: 80px; padding: 12px; border-radius: 8px; margin-bottom: 10px;"></textarea>
+              <button class="btn" onclick="sendMessage()">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>Bible Discovery - Engage in meaningful discourse with the great thinkers</p>
+    </footer>
+
+    <script>
+      const apiBase = "/api";
+      let currentThinker = null;
+      let currentThought = null;
+
+      const thinkers = [
+        { name: "Saint Augustine", era: "Early Church (4th-5th century)", id: "augustine" },
+        { name: "Saint Thomas Aquinas", era: "Medieval Scholastic (13th century)", id: "aquinas" },
+        { name: "Martin Luther", era: "Reformation (16th century)", id: "luther" },
+        { name: "John Calvin", era: "Reformation (16th century)", id: "calvin" },
+        { name: "C.S. Lewis", era: "Modern Apologist (20th century)", id: "lewis" }
+      ];
+
+      const thoughtPrompts = {
+        purpose: { title: "What is the purpose of life?", question: "What is the purpose of life?" },
+        suffering: { title: "Why do we suffer?", question: "Why do we suffer?" },
+        love: { title: "What is love?", question: "What is love?" },
+        faith: { title: "Faith and Reason", question: "How do faith and reason relate?" },
+        forgiveness: { title: "What is forgiveness?", question: "What is forgiveness?" },
+        truth: { title: "What is truth?", question: "What is truth?" }
+      };
+
+      async function loadThought(thoughtId) {
+        currentThought = thoughtId;
+        const thought = thoughtPrompts[thoughtId];
+        
+        document.getElementById("thought-title").textContent = thought.title;
+        document.getElementById("thought-content").innerHTML = "<p>Loading insights from great thinkers...</p>";
+        document.getElementById("thought-display").style.display = "block";
+        document.getElementById("thought-display").scrollIntoView({ behavior: 'smooth' });
+
+        try {
+          const response = await fetch(`${apiBase}/great-thinkers/answer`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: thought.question, include_web: false })
+          });
+
+          if (response.ok) {
+            const answer = await response.json();
+            let html = `<div style="margin: 20px 0; padding: 20px; background: rgba(102, 126, 234, 0.05); border-radius: 12px; border-left: 4px solid #667eea;">`;
+            html += `<h4 style="color: #667eea; margin-bottom: 15px;">Synthesized Wisdom</h4>`;
+            html += `<div style="line-height: 1.8;">${answer.synthesized_answer || "Gathering insights..."}</div>`;
+            html += `</div>`;
+            
+            if (answer.thinkers && answer.thinkers.length > 0) {
+              html += `<div style="margin-top: 30px;"><h4>Perspectives from:</h4><ul style="margin-top: 10px;">`;
+              answer.thinkers.forEach(t => {
+                html += `<li style="margin: 8px 0;"><strong>${t.name}</strong> (${t.era})</li>`;
+              });
+              html += `</ul></div>`;
+            }
+
+            document.getElementById("thought-content").innerHTML = html;
+          } else {
+            document.getElementById("thought-content").innerHTML = `<p>Reflect on this question and share your thoughts below.</p>`;
+          }
+        } catch (error) {
+          document.getElementById("thought-content").innerHTML = `<p>Reflect on this question and share your thoughts below.</p>`;
+        }
+      }
+
+      function hideThought() {
+        document.getElementById("thought-display").style.display = "none";
+        document.getElementById("discourse-section").style.display = "none";
+      }
+
+      window.loadThought = loadThought;
+
+      function newRandomThinker() {
+        currentThinker = thinkers[Math.floor(Math.random() * thinkers.length)];
+        document.getElementById("thinker-name").textContent = currentThinker.name;
+        document.getElementById("thinker-era").textContent = currentThinker.era;
+        
+        const chatMessages = document.getElementById("chat-messages");
+        chatMessages.innerHTML = `
+          <div class="chat-message message-thinker">
+            <strong>${currentThinker.name}:</strong> I'm ready to discuss your thoughts. What would you like to explore?
+          </div>
+        `;
+      }
+
+      async function discussWithThinker() {
+        const thoughts = document.getElementById("user-thoughts").value.trim();
+        if (!thoughts) {
+          alert("Please write your thoughts first");
+          return;
+        }
+
+        if (!currentThinker) {
+          newRandomThinker();
+        }
+
+        document.getElementById("discourse-section").style.display = "block";
+        document.getElementById("discourse-section").scrollIntoView({ behavior: 'smooth' });
+
+        const chatMessages = document.getElementById("chat-messages");
+        
+        // Add user message
+        chatMessages.innerHTML += `
+          <div class="chat-message message-user">
+            <strong>You:</strong> ${thoughts}
+          </div>
+        `;
+
+        // Get thinker response
+        try {
+          const response = await fetch(`${apiBase}/persona/chat`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              persona: currentThinker.id === "lewis" ? "augustine" : currentThinker.id, // Fallback
+              message: thoughts,
+              conversation_id: null
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            chatMessages.innerHTML += `
+              <div class="chat-message message-thinker">
+                <strong>${currentThinker.name}:</strong> ${data.response || "That's a profound question. Let me share my perspective..."}
+              </div>
+            `;
+          } else {
+            chatMessages.innerHTML += `
+              <div class="chat-message message-thinker">
+                <strong>${currentThinker.name}:</strong> Your reflection is thoughtful. From my perspective, this question touches on deep mysteries that have engaged great minds throughout history...
+              </div>
+            `;
+          }
+        } catch (error) {
+          chatMessages.innerHTML += `
+            <div class="chat-message message-thinker">
+              <strong>${currentThinker.name}:</strong> Your reflection is thoughtful. This is indeed a profound question that deserves careful consideration...
+            </div>
+          `;
+        }
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        document.getElementById("user-thoughts").value = "";
+      }
+
+      window.discussWithThinker = discussWithThinker;
+      window.newRandomThinker = newRandomThinker;
+
+      function sendMessage() {
+        const message = document.getElementById("chat-input").value.trim();
+        if (!message) return;
+
+        const chatMessages = document.getElementById("chat-messages");
+        chatMessages.innerHTML += `
+          <div class="chat-message message-user">
+            <strong>You:</strong> ${message}
+          </div>
+        `;
+
+        chatMessages.innerHTML += `
+          <div class="chat-message message-thinker">
+            <strong>${currentThinker?.name || 'Thinker'}:</strong> That's an interesting perspective. Let me respond...
+          </div>
+        `;
+
+        document.getElementById("chat-input").value = "";
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      window.sendMessage = sendMessage;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+{
+  "abraham_journey": {
+    "name": "Abraham's Journey",
+    "description": "The complete journey of Abraham from Ur to Canaan",
+    "passages": [
+      "Genesis 12",
+      "Genesis 13",
+      "Genesis 14",
+      "Genesis 15",
+      "Genesis 16",
+      "Genesis 17",
+      "Genesis 18",
+      "Genesis 19",
+      "Genesis 20",
+      "Genesis 21",
+      "Genesis 22",
+      "Genesis 23",
+      "Genesis 24",
+      "Genesis 25:1-18"
+    ]
+  },
+  "joseph_story": {
+    "name": "Joseph's Story",
+    "description": "The story of Joseph from favored son to Egyptian ruler",
+    "passages": [
+      "Genesis 37",
+      "Genesis 39",
+      "Genesis 40",
+      "Genesis 41",
+      "Genesis 42",
+      "Genesis 43",
+      "Genesis 44",
+      "Genesis 45",
+      "Genesis 46",
+      "Genesis 47",
+      "Genesis 48",
+      "Genesis 49",
+      "Genesis 50"
+    ]
+  },
+  "jesus_last_week": {
+    "name": "Jesus' Last Week",
+    "description": "The final week of Jesus' earthly ministry (all 4 Gospels)",
+    "passages": [
+      "Matthew 21",
+      "Matthew 22",
+      "Matthew 23",
+      "Matthew 24",
+      "Matthew 25",
+      "Matthew 26",
+      "Matthew 27",
+      "Matthew 28",
+      "Mark 11",
+      "Mark 12",
+      "Mark 13",
+      "Mark 14",
+      "Mark 15",
+      "Mark 16",
+      "Luke 19",
+      "Luke 20",
+      "Luke 21",
+      "Luke 22",
+      "Luke 23",
+      "Luke 24",
+      "John 12",
+      "John 13",
+      "John 14",
+      "John 15",
+      "John 16",
+      "John 17",
+      "John 18",
+      "John 19",
+      "John 20",
+      "John 21"
+    ]
+  }
+}

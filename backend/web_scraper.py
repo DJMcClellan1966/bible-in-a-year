@@ -268,3 +268,29 @@ class BibleWebScraper:
     ) -> List[Dict[str, Any]]:
         """Get all relevant web data for a passage."""
         return self.search_bible_commentary(passage, max_results=max_web_results)
+    
+    def search_commentary(
+        self,
+        query: str,
+        max_results: int = 3
+    ) -> List[Dict[str, Any]]:
+        """Search for general theological/philosophical commentary on any topic."""
+        results = []
+        
+        try:
+            # Use DuckDuckGo to search for the query
+            search_results = self._search_duckduckgo(query, max_results)
+            results.extend(search_results)
+        except Exception as e:
+            print(f"Error searching commentary: {e}")
+        
+        # Format results to match expected structure
+        formatted_results = []
+        for result in results[:max_results]:
+            formatted_results.append({
+                "text": result.get("content", result.get("title", "")),
+                "url": result.get("url", ""),
+                "source": result.get("source", "web")
+            })
+        
+        return formatted_results

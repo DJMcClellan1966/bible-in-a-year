@@ -110,6 +110,7 @@ New-NetFirewallRule -DisplayName "Bible in a Year" -Direction Inbound -Protocol 
 
 ✅ All features work on iPad:
 - Daily Bible reading
+- **🔍 Discovery Mode** - Deep exploration without reading plan pressure
 - AI Persona conversations
 - Character studies
 - Timeline visualization
@@ -118,6 +119,12 @@ New-NetFirewallRule -DisplayName "Bible in a Year" -Direction Inbound -Protocol 
 - And all other features!
 
 💡 **Tip**: Add to Home Screen for app-like experience!
+
+### Access Discovery Mode on iPad
+
+Once connected, you can access Discovery Mode:
+- From main page: Click "🔍 Discovery Mode" in navigation
+- Direct URL: `http://YOUR_IP:8000/static/discover.html`
 
 ---
 

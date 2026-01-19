@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story Mode - Read Like a Novel</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .story-reader {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+      
+      .story-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid var(--border-color);
+      }
+      
+      .story-header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+      }
+      
+      .story-header .description {
+        font-size: 1.1em;
+        color: #666;
+        font-style: italic;
+        margin-bottom: 15px;
+      }
+      
+      .story-meta {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        font-size: 0.9em;
+        color: #888;
+      }
+      
+      .story-content {
+        line-height: 1.9;
+        font-size: 1.1em;
+        color: var(--text-color);
+        margin-bottom: 40px;
+      }
+      
+      .story-segment {
+        margin-bottom: 40px;
+        padding: 20px;
+        background: rgba(102, 126, 234, 0.03);
+        border-left: 4px solid var(--primary-color);
+        border-radius: 6px;
+      }
+      
+      .segment-header {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        font-size: 1.1em;
+      }
+      
+      .segment-text {
+        line-height: 1.9;
+        margin-bottom: 15px;
+      }
+      
+      .segment-text .verse-ref {
+        font-weight: 600;
+        color: var(--secondary-color);
+      }
+      
+      .connecting-commentary {
+        background: rgba(118, 75, 162, 0.05);
+        padding: 20px;
+        border-radius: 8px;
+        margin: 30px 0;
+        border-left: 4px solid var(--secondary-color);
+        font-style: italic;
+        color: #555;
+      }
+      
+      .story-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 2px solid var(--border-color);
+      }
+      
+      .nav-btn {
+        padding: 12px 24px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
+      
+      .nav-btn:hover {
+        background: var(--secondary-color);
+      }
+      
+      .nav-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      
+      .story-timeline {
+        background: rgba(102, 126, 234, 0.05);
+        padding: 20px;
+        border-radius: 8px;
+        margin: 30px 0;
+      }
+      
+      .timeline-item {
+        padding: 10px;
+        margin: 5px 0;
+        border-left: 3px solid var(--primary-color);
+        padding-left: 15px;
+      }
+      
+      .story-characters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 20px 0;
+      }
+      
+      .character-tag {
+        padding: 6px 12px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9em;
+      }
+      
+      .story-themes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 20px 0;
+      }
+      
+      .theme-tag {
+        padding: 6px 12px;
+        background: rgba(118, 75, 162, 0.2);
+        color: var(--secondary-color);
+        border-radius: 20px;
+        font-size: 0.9em;
+        border: 1px solid var(--secondary-color);
+      }
+      
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+      
+      .story-selector {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      
+      .story-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+      }
+      
+      .story-card {
+        padding: 15px;
+        background: rgba(102, 126, 234, 0.05);
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      
+      .story-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+      
+      .story-card h3 {
+        margin-bottom: 8px;
+        color: var(--primary-color);
+      }
+      
+      .story-card p {
+        font-size: 0.9em;
+        color: #666;
+        margin: 5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h1>📖 Story Mode</h1>
+          <p>Read complete biblical narratives like chapters in a novel</p>
+        </div>
+        <button id="toggle-theme" class="btn" title="Toggle dark mode">🌙</button>
+      </div>
+      <nav>
+        <a href="index.html">🏠 Home</a>
+        <a href="narrative.html">📚 All Stories</a>
+        <a href="persona.html">💬 AI Chat</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <!-- Story Selector -->
+      <div id="story-selector" class="story-selector">
+        <h2>Choose a Story to Read</h2>
+        <p style="color: #666; margin-bottom: 15px;">Select a complete biblical narrative to read from beginning to end, like a chapter in a book.</p>
+        <div id="story-list" class="story-list">
+          <div class="loading">Loading stories...</div>
+        </div>
+      </div>
+
+      <!-- Story Reader -->
+      <div id="story-reader" class="story-reader" style="display: none;">
+        <div class="story-header">
+          <h1 id="story-title"></h1>
+          <div class="description" id="story-description"></div>
+          <div class="story-meta">
+            <span id="story-segments-count"></span>
+            <span id="story-characters-count"></span>
+          </div>
+        </div>
+
+        <div id="story-content" class="story-content">
+          <div class="loading">Loading story...</div>
+        </div>
+
+        <div class="story-navigation">
+          <button id="prev-story-btn" class="nav-btn" onclick="loadPreviousStory()">← Previous Story</button>
+          <button class="nav-btn" onclick="showStorySelector()">Choose Another Story</button>
+          <button id="next-story-btn" class="nav-btn" onclick="loadNextStory()">Next Story →</button>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const apiBase = "/api";
+      let allStories = [];
+      let currentStoryIndex = -1;
+
+      // Theme toggle
+      const toggleTheme = document.getElementById("toggle-theme");
+      const isDark = localStorage.getItem("darkMode") === "true";
+      if (isDark) document.body.classList.add("dark-mode");
+      
+      toggleTheme.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+      });
+
+      // Load all stories
+      async function loadStories() {
+        try {
+          const response = await fetch(`${apiBase}/narrative/stories`);
+          if (!response.ok) throw new Error("Failed to load stories");
+          
+          const data = await response.json();
+          allStories = data.stories || [];
+          
+          displayStoryList();
+        } catch (error) {
+          console.error("Error loading stories:", error);
+          document.getElementById("story-list").innerHTML = 
+            "<p style='color: #d32f2f;'>Error loading stories. Please try again.</p>";
+        }
+      }
+
+      function displayStoryList() {
+        const listEl = document.getElementById("story-list");
+        
+        if (allStories.length === 0) {
+          listEl.innerHTML = "<p>No stories available.</p>";
+          return;
+        }
+
+        listEl.innerHTML = allStories.map((story, index) => `
+          <div class="story-card" onclick="loadStory('${story.id}', ${index})">
+            <h3>${story.name}</h3>
+            <p>${story.description || "Complete biblical narrative"}</p>
+            <p style="font-size: 0.85em; color: #888;">
+              📖 ${story.passage_count || 0} passages
+            </p>
+          </div>
+        `).join("");
+      }
+
+      async function loadStory(storyId, index) {
+        currentStoryIndex = index;
+        
+        // Hide selector, show reader
+        document.getElementById("story-selector").style.display = "none";
+        document.getElementById("story-reader").style.display = "block";
+        
+        const contentEl = document.getElementById("story-content");
+        contentEl.innerHTML = "<div class='loading'>Loading story...</div>";
+        
+        try {
+          const response = await fetch(`${apiBase}/narrative/story/${storyId}`);
+          if (!response.ok) throw new Error("Failed to load story");
+          
+          const story = await response.json();
+          displayStory(story);
+        } catch (error) {
+          console.error("Error loading story:", error);
+          contentEl.innerHTML = 
+            "<p style='color: #d32f2f;'>Error loading story. Please try again.</p>";
+        }
+      }
+
+      function displayStory(story) {
+        // Header
+        document.getElementById("story-title").textContent = story.name;
+        document.getElementById("story-description").textContent = story.description || "";
+        document.getElementById("story-segments-count").textContent = 
+          `📖 ${story.segments?.length || 0} passages`;
+        document.getElementById("story-characters-count").textContent = 
+          `👤 ${story.key_characters?.length || 0} characters`;
+
+        // Content
+        const contentEl = document.getElementById("story-content");
+        let html = "";
+
+        // Characters and themes
+        if (story.key_characters && story.key_characters.length > 0) {
+          html += `<div class="story-characters">
+            ${story.key_characters.map(c => `<span class="character-tag">${c}</span>`).join("")}
+          </div>`;
+        }
+
+        if (story.themes && story.themes.length > 0) {
+          html += `<div class="story-themes">
+            ${story.themes.map(t => `<span class="theme-tag">${t}</span>`).join("")}
+          </div>`;
+        }
+
+        // Segments
+        if (story.segments && story.segments.length > 0) {
+          story.segments.forEach((segment, idx) => {
+            html += `<div class="story-segment">
+              <div class="segment-header">${segment.passage}</div>
+              <div class="segment-text">${formatText(segment.text)}</div>
+            </div>`;
+            
+            // Add connecting commentary between segments
+            if (idx < story.segments.length - 1 && story.connecting_commentary) {
+              html += `<div class="connecting-commentary">
+                ${story.connecting_commentary}
+              </div>`;
+            }
+          });
+        } else if (story.narrative_text) {
+          // Fallback to narrative text if segments not available
+          html += `<div class="story-segment">
+            <div class="segment-text">${formatText(story.narrative_text)}</div>
+          </div>`;
+        }
+
+        // Timeline
+        if (story.timeline && story.timeline.length > 0) {
+          html += `<div class="story-timeline">
+            <h3 style="margin-bottom: 15px; color: var(--primary-color);">Timeline</h3>
+            ${story.timeline.map(item => `
+              <div class="timeline-item">
+                <strong>${item.event || item.passage || ""}</strong>
+                ${item.description ? `<div style="margin-top: 5px; font-size: 0.9em;">${item.description}</div>` : ""}
+              </div>
+            `).join("")}
+          </div>`;
+        }
+
+        contentEl.innerHTML = html;
+
+        // Update navigation
+        updateNavigation();
+        
+        // Scroll to top
+        window.scrollTo(0, 0);
+      }
+
+      function formatText(text) {
+        if (!text) return "";
+        // Format verse references
+        return text.replace(/(\d+):(\d+)/g, '<span class="verse-ref">$1:$2</span>');
+      }
+
+      function updateNavigation() {
+        const prevBtn = document.getElementById("prev-story-btn");
+        const nextBtn = document.getElementById("next-story-btn");
+        
+        prevBtn.disabled = currentStoryIndex <= 0;
+        nextBtn.disabled = currentStoryIndex >= allStories.length - 1;
+      }
+
+      function loadPreviousStory() {
+        if (currentStoryIndex > 0) {
+          loadStory(allStories[currentStoryIndex - 1].id, currentStoryIndex - 1);
+        }
+      }
+
+      function loadNextStory() {
+        if (currentStoryIndex < allStories.length - 1) {
+          loadStory(allStories[currentStoryIndex + 1].id, currentStoryIndex + 1);
+        }
+      }
+
+      function showStorySelector() {
+        document.getElementById("story-selector").style.display = "block";
+        document.getElementById("story-reader").style.display = "none";
+        window.scrollTo(0, 0);
+      }
+
+      // Initialize
+      loadStories();
+    </script>
+  </body>
+</html>

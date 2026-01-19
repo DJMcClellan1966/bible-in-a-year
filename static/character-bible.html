@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Character Bible - Stories from Their Perspective</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .character-bible-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      
+      .character-selector {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
+      }
+      
+      .character-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+      }
+      
+      .character-card {
+        padding: 15px;
+        background: rgba(102, 126, 234, 0.05);
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+      }
+      
+      .character-card:hover {
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+      
+      .character-card.selected {
+        border-color: var(--primary-color);
+        background: rgba(102, 126, 234, 0.15);
+      }
+      
+      .character-card h3 {
+        margin: 0 0 8px 0;
+        color: var(--primary-color);
+        font-size: 1.1em;
+      }
+      
+      .passage-input-area {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
+      }
+      
+      .input-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      
+      .input-row input,
+      .input-row select {
+        flex: 1;
+        min-width: 150px;
+      }
+      
+      .narrative-display {
+        background: var(--card-bg);
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
+        line-height: 1.9;
+        font-size: 1.1em;
+      }
+      
+      .narrative-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid var(--border-color);
+      }
+      
+      .narrative-header h2 {
+        font-size: 2em;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+      }
+      
+      .character-perspective {
+        background: rgba(102, 126, 234, 0.05);
+        padding: 15px;
+        border-left: 4px solid var(--primary-color);
+        border-radius: 6px;
+        margin: 20px 0;
+        font-style: italic;
+        color: #555;
+      }
+      
+      .emotional-tone {
+        display: inline-block;
+        padding: 6px 12px;
+        background: var(--secondary-color);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.9em;
+        margin: 10px 5px;
+      }
+      
+      .insights-list {
+        background: rgba(118, 75, 162, 0.05);
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        border-left: 4px solid var(--secondary-color);
+      }
+      
+      .insights-list h3 {
+        margin-top: 0;
+        color: var(--secondary-color);
+      }
+      
+      .insights-list ul {
+        margin: 10px 0;
+        padding-left: 20px;
+      }
+      
+      .insights-list li {
+        margin: 8px 0;
+        line-height: 1.6;
+      }
+      
+      .chapter-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 2px solid var(--border-color);
+      }
+      
+      .chapter-info {
+        text-align: center;
+        flex: 1;
+      }
+      
+      .nav-btn {
+        padding: 12px 24px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+      }
+      
+      .nav-btn:hover {
+        background: var(--secondary-color);
+      }
+      
+      .nav-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+      }
+      
+      .book-selector {
+        margin-top: 15px;
+      }
+      
+      .book-characters {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h1>📖 Character Bible</h1>
+          <p>Experience the Bible through the eyes of its characters</p>
+        </div>
+        <button id="toggle-theme" class="btn" title="Toggle dark mode">🌙</button>
+      </div>
+      <nav>
+        <a href="index.html">🏠 Home</a>
+        <a href="story-mode.html">📖 Story Mode</a>
+        <a href="characters.html">👤 Characters</a>
+        <a href="persona.html">💬 AI Chat</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div class="character-bible-container">
+        <!-- Character Selector -->
+        <div class="character-selector">
+          <h2>Choose a Character</h2>
+          <p style="color: #666; margin-bottom: 15px;">Select a biblical character to read the Bible from their unique perspective</p>
+          
+          <div class="input-row">
+            <input type="text" id="character-search" placeholder="Search character..." style="flex: 1;" />
+            <select id="character-category" style="width: 200px;">
+              <option value="">All Categories</option>
+              <option value="patriarch">Patriarchs</option>
+              <option value="prophet">Prophets</option>
+              <option value="king">Kings</option>
+              <option value="disciple">Disciples</option>
+              <option value="woman">Women</option>
+            </select>
+          </div>
+          
+          <div id="character-grid" class="character-grid">
+            <div class="loading">Loading characters...</div>
+          </div>
+        </div>
+
+        <!-- Book Selector (Alternative) -->
+        <div class="passage-input-area">
+          <h2>Or Explore by Book</h2>
+          <div class="input-row">
+            <select id="book-selector">
+              <option value="">Select a book...</option>
+              <option value="Genesis">Genesis</option>
+              <option value="Exodus">Exodus</option>
+              <option value="Matthew">Matthew</option>
+              <option value="Mark">Mark</option>
+              <option value="Luke">Luke</option>
+              <option value="John">John</option>
+            </select>
+            <button class="btn" onclick="loadBookCharacters()">Show Characters</button>
+          </div>
+          <div id="book-characters" class="book-characters" style="display: none;"></div>
+        </div>
+
+        <!-- Passage Input -->
+        <div class="passage-input-area">
+          <h2>Read a Passage from Character's Perspective</h2>
+          <div class="input-row">
+            <input type="text" id="passage-input" placeholder="e.g., Genesis 1 or John 3:16" style="flex: 1;" />
+            <button class="btn" onclick="loadCharacterPerspective()">Read from Character's View</button>
+          </div>
+        </div>
+
+        <!-- Chapter Reader -->
+        <div class="passage-input-area">
+          <h2>Read Full Chapter from Character's Perspective</h2>
+          <div class="input-row">
+            <input type="text" id="character-name" placeholder="Character name" style="flex: 1;" />
+            <input type="text" id="book-name" placeholder="Book (e.g., Genesis)" />
+            <input type="number" id="chapter-number" placeholder="Chapter" min="1" />
+            <button class="btn" onclick="loadCharacterChapter()">Read Chapter</button>
+          </div>
+        </div>
+
+        <!-- Narrative Display -->
+        <div id="narrative-display" class="narrative-display" style="display: none;">
+          <div class="narrative-header">
+            <h2 id="narrative-title"></h2>
+            <div id="narrative-meta"></div>
+          </div>
+          
+          <div id="narrative-content"></div>
+          
+          <div class="chapter-navigation">
+            <button class="nav-btn" onclick="showSelectors()">← Choose Another</button>
+            <div class="chapter-info" id="chapter-info"></div>
+            <button class="nav-btn" onclick="loadNextChapter()" id="next-chapter-btn" style="display: none;">Next Chapter →</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const apiBase = "/api";
+      let allCharacters = [];
+      let currentCharacter = null;
+      let currentBook = null;
+      let currentChapter = null;
+
+      // Theme toggle
+      const toggleTheme = document.getElementById("toggle-theme");
+      const isDark = localStorage.getItem("darkMode") === "true";
+      if (isDark) document.body.classList.add("dark-mode");
+      
+      toggleTheme.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+      });
+
+      // Load all characters
+      async function loadCharacters() {
+        try {
+          const response = await fetch(`${apiBase}/characters`);
+          if (!response.ok) throw new Error("Failed to load characters");
+          
+          const data = await response.json();
+          allCharacters = data.characters || [];
+          
+          displayCharacters();
+        } catch (error) {
+          console.error("Error loading characters:", error);
+          document.getElementById("character-grid").innerHTML = 
+            "<p style='color: #d32f2f;'>Error loading characters. Please try again.</p>";
+        }
+      }
+
+      function displayCharacters() {
+        const gridEl = document.getElementById("character-grid");
+        const searchTerm = document.getElementById("character-search").value.toLowerCase();
+        const category = document.getElementById("character-category").value;
+        
+        let filtered = allCharacters;
+        
+        if (searchTerm) {
+          filtered = filtered.filter(c => 
+            c.name.toLowerCase().includes(searchTerm) ||
+            (c.description || "").toLowerCase().includes(searchTerm)
+          );
+        }
+        
+        if (category) {
+          filtered = filtered.filter(c => c.category === category);
+        }
+        
+        if (filtered.length === 0) {
+          gridEl.innerHTML = "<p>No characters found.</p>";
+          return;
+        }
+
+        gridEl.innerHTML = filtered.map(char => `
+          <div class="character-card" onclick="selectCharacter('${char.character_id}', '${char.name}')">
+            <h3>${char.name}</h3>
+            <p style="font-size: 0.85em; color: #666; margin: 5px 0;">${char.category || "Character"}</p>
+            <p style="font-size: 0.8em; color: #888;">${(char.description || "").substring(0, 60)}${(char.description || "").length > 60 ? "..." : ""}</p>
+          </div>
+        `).join("");
+      }
+
+      function selectCharacter(characterId, characterName) {
+        currentCharacter = characterName;
+        
+        // Highlight selected
+        document.querySelectorAll(".character-card").forEach(card => {
+          card.classList.remove("selected");
+        });
+        event.target.closest(".character-card")?.classList.add("selected");
+        
+        // Fill character name input
+        document.getElementById("character-name").value = characterName;
+      }
+
+      async function loadCharacterPerspective() {
+        const character = document.getElementById("character-name").value || currentCharacter;
+        const passage = document.getElementById("passage-input").value;
+        
+        if (!character || !passage) {
+          alert("Please select a character and enter a passage");
+          return;
+        }
+
+        const displayEl = document.getElementById("narrative-display");
+        displayEl.style.display = "block";
+        document.getElementById("narrative-content").innerHTML = "<div class='loading'>Loading character's perspective...</div>";
+        
+        // Hide selectors
+        document.querySelectorAll(".character-selector, .passage-input-area").forEach(el => {
+          el.style.display = "none";
+        });
+        
+        try {
+          const response = await fetch(`${apiBase}/character-bible/perspective?character=${encodeURIComponent(character)}&passage=${encodeURIComponent(passage)}`);
+          if (!response.ok) throw new Error("Failed to load perspective");
+          
+          const data = await response.json();
+          displayPerspective(data, character, passage);
+        } catch (error) {
+          console.error("Error loading perspective:", error);
+          document.getElementById("narrative-content").innerHTML = 
+            "<p style='color: #d32f2f;'>Error loading character's perspective. Please try again.</p>";
+        }
+      }
+
+      async function loadCharacterChapter() {
+        const character = document.getElementById("character-name").value || currentCharacter;
+        const book = document.getElementById("book-name").value;
+        const chapter = parseInt(document.getElementById("chapter-number").value);
+        
+        if (!character || !book || !chapter) {
+          alert("Please fill in character, book, and chapter");
+          return;
+        }
+
+        currentCharacter = character;
+        currentBook = book;
+        currentChapter = chapter;
+
+        const displayEl = document.getElementById("narrative-display");
+        displayEl.style.display = "block";
+        document.getElementById("narrative-content").innerHTML = "<div class='loading'>Loading chapter from character's perspective...</div>";
+        
+        // Hide selectors
+        document.querySelectorAll(".character-selector, .passage-input-area").forEach(el => {
+          el.style.display = "none";
+        });
+        
+        try {
+          const response = await fetch(`${apiBase}/character-bible/chapter?character=${encodeURIComponent(character)}&book=${encodeURIComponent(book)}&chapter=${chapter}`);
+          if (!response.ok) throw new Error("Failed to load chapter");
+          
+          const data = await response.json();
+          displayChapter(data, character, book, chapter);
+        } catch (error) {
+          console.error("Error loading chapter:", error);
+          document.getElementById("narrative-content").innerHTML = 
+            "<p style='color: #d32f2f;'>Error loading chapter. Please try again.</p>";
+        }
+      }
+
+      function displayPerspective(data, character, passage) {
+        document.getElementById("narrative-title").textContent = `${character}'s Perspective: ${passage}`;
+        document.getElementById("narrative-meta").innerHTML = `
+          <span class="emotional-tone">${data.emotional_tone || "Reflective"}</span>
+        `;
+        
+        let html = `
+          <div class="character-perspective">
+            <strong>${character}'s Unique Perspective:</strong> ${data.perspective || ""}
+          </div>
+          
+          <div class="narrative-text" style="line-height: 1.9; margin: 20px 0;">
+            ${data.narrative || ""}
+          </div>
+        `;
+        
+        if (data.key_insights && data.key_insights.length > 0) {
+          html += `
+            <div class="insights-list">
+              <h3>Key Insights from ${character}</h3>
+              <ul>
+                ${data.key_insights.map(insight => `<li>${insight}</li>`).join("")}
+              </ul>
+            </div>
+          `;
+        }
+        
+        document.getElementById("narrative-content").innerHTML = html;
+        document.getElementById("chapter-info").textContent = "";
+        document.getElementById("next-chapter-btn").style.display = "none";
+        
+        window.scrollTo(0, 0);
+      }
+
+      function displayChapter(data, character, book, chapter) {
+        document.getElementById("narrative-title").textContent = data.title || `${book} ${chapter} - ${character}'s Story`;
+        document.getElementById("narrative-meta").innerHTML = `
+          <p style="color: #666; margin: 5px 0;">${character}'s perspective on ${book} chapter ${chapter}</p>
+        `;
+        
+        let html = `
+          <div class="narrative-text" style="line-height: 1.9; margin: 20px 0; white-space: pre-wrap;">
+            ${data.narrative || ""}
+          </div>
+        `;
+        
+        if (data.character_thoughts) {
+          html += `
+            <div class="character-perspective">
+              <strong>${character}'s Thoughts:</strong> ${data.character_thoughts}
+            </div>
+          `;
+        }
+        
+        if (data.timeline_context) {
+          html += `
+            <div class="character-perspective" style="background: rgba(118, 75, 162, 0.05); border-left-color: var(--secondary-color);">
+              <strong>Timeline Context:</strong> ${data.timeline_context}
+            </div>
+          `;
+        }
+        
+        if (data.connections && data.connections.length > 0) {
+          html += `
+            <div class="insights-list">
+              <h3>Related Passages</h3>
+              <ul>
+                ${data.connections.map(p => `<li>${p}</li>`).join("")}
+              </ul>
+            </div>
+          `;
+        }
+        
+        document.getElementById("narrative-content").innerHTML = html;
+        document.getElementById("chapter-info").textContent = `${book} ${chapter}`;
+        document.getElementById("next-chapter-btn").style.display = "inline-block";
+        
+        window.scrollTo(0, 0);
+      }
+
+      function loadNextChapter() {
+        if (currentBook && currentChapter) {
+          document.getElementById("chapter-number").value = currentChapter + 1;
+          loadCharacterChapter();
+        }
+      }
+
+      function showSelectors() {
+        document.getElementById("narrative-display").style.display = "none";
+        document.querySelectorAll(".character-selector, .passage-input-area").forEach(el => {
+          el.style.display = "block";
+        });
+      }
+
+      async function loadBookCharacters() {
+        const book = document.getElementById("book-selector").value;
+        if (!book) {
+          alert("Please select a book");
+          return;
+        }
+
+        const containerEl = document.getElementById("book-characters");
+        containerEl.style.display = "grid";
+        containerEl.innerHTML = "<div class='loading'>Loading characters...</div>";
+
+        try {
+          const response = await fetch(`${apiBase}/character-bible/book/${encodeURIComponent(book)}`);
+          if (!response.ok) throw new Error("Failed to load characters");
+          
+          const data = await response.json();
+          
+          if (data.characters && data.characters.length > 0) {
+            containerEl.innerHTML = data.characters.map(char => `
+              <div class="character-card" onclick="selectCharacterFromBook('${char.id || char.name}', '${char.name}')">
+                <h3>${char.name}</h3>
+                <p style="font-size: 0.8em; color: #888;">${char.passage_count || 0} passages</p>
+              </div>
+            `).join("");
+          } else {
+            containerEl.innerHTML = "<p>No characters found for this book.</p>";
+          }
+        } catch (error) {
+          console.error("Error loading book characters:", error);
+          containerEl.innerHTML = "<p style='color: #d32f2f;'>Error loading characters.</p>";
+        }
+      }
+
+      function selectCharacterFromBook(characterId, characterName) {
+        currentCharacter = characterName;
+        document.getElementById("character-name").value = characterName;
+      }
+
+      // Search and filter
+      document.getElementById("character-search").addEventListener("input", displayCharacters);
+      document.getElementById("character-category").addEventListener("change", displayCharacters);
+
+      // Initialize
+      loadCharacters();
+      
+      window.selectCharacter = selectCharacter;
+      window.loadCharacterPerspective = loadCharacterPerspective;
+      window.loadCharacterChapter = loadCharacterChapter;
+      window.loadNextChapter = loadNextChapter;
+      window.showSelectors = showSelectors;
+      window.loadBookCharacters = loadBookCharacters;
+      window.selectCharacterFromBook = selectCharacterFromBook;
+    </script>
+  </body>
+</html>

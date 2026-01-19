@@ -1,17 +1,30 @@
-# Bible in a Year (Windows Universal App)
+# Bible Discovery - Deep Exploration App
 
-Bible in a Year is a Windows‑friendly app that combines a classic daily reading plan with AI spiritual companions based on Saints Augustine and Aquinas. It supports offline‑friendly journaling, margin notes, and Ollama‑powered commentary.
+Bible Discovery is a Windows‑friendly app for deep, meaningful Bible exploration when you have time. No pressure, no schedule - just pick any passage and explore with insights from Saints Augustine, Aquinas, and modern scholars.
+
+## Philosophy
+
+**For people who:**
+- Struggle with daily reading plans
+- Want deep meaning, not surface reading
+- Need spiritual connection without pressure
+- Value quality over quantity
+
+**What makes this different:**
+- ✅ No reading plan pressure - explore what interests you
+- ✅ Deep commentary from church fathers and scholars
+- ✅ Historical context and connections automatically included
+- ✅ Thematic paths for guided exploration (no timeline)
+- ✅ Available when you need spiritual connection
 
 ## Features
-- Daily reading structure with a chronological-style plan (generated locally)
-- AI commentary, Q&A, and personalized insights
-- Diary with margin notes saved for rereading
-- Progress tracking and themed devotionals
+- **Discovery Mode** - Pick any passage, get deep exploration with multiple commentary perspectives
+- **Historical Context** - Timeline events, cultural background, character information
+- **Scriptural Connections** - Related passages, themes, and echoes automatically discovered
+- **Thematic Paths** - Pre-curated studies (e.g., "The Journey of Faith", "Prophecy & Fulfillment")
+- AI commentary from Augustine, Aquinas, and combined perspectives
+- Character studies, narrative reconstruction, and timeline visualization
 - Offline‑friendly local storage
-- Credits for CCEL, Gutenberg, and Internet Archive
-
-## Reading Plan
-The app uses `data/reading_plans.json` if present. If the file is missing or incomplete, the backend will generate a complete 365‑day chronological-style plan on first run.
 
 ## Requirements
 - Python 3.11
@@ -93,10 +106,16 @@ OLLAMA_REMOTE_URL=https://your-remote-ollama-instance.com
 The backend will try the local Ollama first and fall back to `OLLAMA_REMOTE_URL` if local Ollama is not available.
 
 ## Bible Versions (HTML folders)
-To use your local Bible folders (YLT, ASV, DBY), edit:
+To use your local Bible folders, edit:
 ```
 data/bible_sources.json
 ```
+
+**Currently configured**: YLT, ASV, DBY (all older translations)
+
+**Want modern versions?** See `ADDING_BIBLE_VERSIONS.md` for instructions on adding:
+- ESV, NIV, NASB, NLT, NKJV, CSB, NET (and more)
+- Free options: NET Bible, World English Bible
 Example:
 ```
 {
